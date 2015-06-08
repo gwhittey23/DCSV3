@@ -1,0 +1,36 @@
+#:import win kivy.core.window.Window
+<ComicBookScreen>:
+
+    carousel_id: None
+    max_height:self.max_height
+    size: root.size
+    name: 'comic_book_screen'
+    FloatLayout:
+        size: root.size
+        id: comic_screen_float
+        ComicCarousel:
+            id: comic_book_carousel
+
+        Button:
+            pos_hint: {'x': .3, 'y': .0001}
+            text: 'Open Page Scroll'
+            size_hint: .4, .2
+            opacity: 1
+            on_release: root.load_random_comic()
+
+
+<ComicBookPageScatter>:
+    do_rotation: False
+    do_translation_x: False
+    do_translation_y: False
+    scale_min: 1.0
+    scale_max: 2
+    size_hint: (None,None)
+    size: win.size
+
+<ComicBookPageImage>:
+    size_hint: 1,1
+    keep_ratio: True
+    allow_stretch: True
+    size_hint: (1,1)
+    size: self.size
