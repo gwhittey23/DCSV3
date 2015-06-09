@@ -24,7 +24,7 @@ class HomeScreen(AppScreenTemplate):
 
 
     def test_me(self):
-        print self.collection.size
+        print 'ok'
     def build_home_screen(self):
         root = self
         app = App.get_running_app()
@@ -63,7 +63,7 @@ class HomeScreen(AppScreenTemplate):
         self.tile_link_data = [
                                 {'icon': 'md-list', 'text': 'Series',
                                 'secondary_text': "A list of Series",
-                                'callback':''},
+                                'callback':self.test_me()},
                                 {'icon': 'md-event', 'text': 'Event',
                                 'secondary_text': "An event button",
                                 'callback':''},
