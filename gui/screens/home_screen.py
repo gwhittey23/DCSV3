@@ -4,7 +4,7 @@ from kivy.uix.button import ButtonBehavior
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.label import Label
-from kivy.properties import ObjectProperty
+from kivy.properties import ObjectProperty, ListProperty
 from kivy.clock import Clock
 from comicstream.comic_data import ComicCollection, ComicBook
 from kivy.uix.screenmanager import Screen
@@ -19,12 +19,14 @@ import inspect
 
 
 class HomeScreen(AppScreenTemplate):
+    tile_icon_data = ListProperty()
+    nav = ObjectProperty()
     def __init__(self,**kwargs):
         super(HomeScreen, self).__init__(**kwargs)
 
-
     def test_me(self):
-        print 'ok'
+        self.nav.toggle_state()
+        print 'ok ok ok ok '
     def build_home_screen(self):
         root = self
         app = App.get_running_app()
@@ -45,39 +47,20 @@ class HomeScreen(AppScreenTemplate):
                                   {'text': "Button 4"}]
 
         self.tile_icon_data = [
-                                {'icon': 'md-alarm', 'text': 'Alarm',
-                                'secondary_text': "An alarm button",
-                                'callback': self.toggle_nav},
+                                {'icon': '', 'text': '',
+                                'secondary_text': '',
+                                'callback': ''},
                                 {'icon': 'md-event', 'text': 'Event',
                                 'secondary_text': "An event button",
-                                'callback':self.toggle_nav},
+                                'callback':self.test_me},
                                 {'icon':  'md-search', 'text': 'Search',
                                 'secondary_text': "A search button",
-                                'callback': self.toggle_nav},
+                                'callback': self.nav.toggle_state},
                                 {'icon': 'md-thumb-up', 'text': 'Like',
                                 'secondary_text': "A like button",
-                                'callback': self.toggle_nav}
+                                'callback': self.nav.toggle_state}
 
                                ]
-
-        self.tile_link_data = [
-                                {'icon': 'md-list', 'text': 'Series',
-                                'secondary_text': "A list of Series",
-                                'callback':self.test_me()},
-                                {'icon': 'md-event', 'text': 'Event',
-                                'secondary_text': "An event button",
-                                'callback':''},
-                                {'icon':  'md-search', 'text': 'Search',
-                                'secondary_text': "A search button",
-                                'callback': self.toggle_nav},
-                                {'icon': 'md-thumb-up', 'text': 'Like',
-                                'secondary_text': "A like button",
-                                'callback': self.toggle_nav}
-
-                               ]
-
-
-
 
         self.build_recent_comics()
     def build_collection(self,req, results):

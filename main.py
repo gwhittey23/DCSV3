@@ -1,6 +1,5 @@
 __version__ = '1.0000000028'
-import sys
-sys.path.append( '..' )
+
 DEBUG = True
 import kivy
 kivy.require('1.9.1')
@@ -14,17 +13,25 @@ from data.settingsjson   import settings_json_server,settings_json_dispaly
 
 from kivy.uix.screenmanager import ScreenManager
 #from csvdb.csvdroid_db import build_db
-
+from kivy.properties import ListProperty,ObjectProperty
 from kivy.core.window import Window
 from kivy.modules import keybinding
 from gui.theme_engine.theme import ThemeManager
-from gui.theme_engine.toolbar import Toolbar
-from gui.theme_engine.list import MaterialList
 from gui.screens.comic_book_screen import ComicBookScreen
 from gui.screens.home_screen import HomeScreen
+from gui.theme_engine.list import MaterialList
+from gui.theme_engine.textfields import SingleLineTextField
+from gui.theme_engine.toolbar import Toolbar
 from kivy.uix.settings import SettingsWithSidebar,SettingsWithTabbedPanel
 # from memory_profiler import profile
+import kivy
+import gui.theme_engine
+kivy.require('1.9.0')
 
+from kivy.app import App
+
+from kivy.properties import ListProperty, ObjectProperty
+from gui.theme_engine.theme import ThemeBehaviour, ThemeManager
 
 
 class AppScreenManager(ScreenManager):
@@ -33,11 +40,27 @@ class AppScreenManager(ScreenManager):
 class MainApp(App):
     theme_cls = ThemeManager()
     version = __version__
+    tile_data = ListProperty([])
+
+    tile_single_data = ListProperty([])
+
+    tile_icon_data = ListProperty()
+
+    tile_avatar_data = ListProperty()
+
+    nav = ObjectProperty()
     def __init__(self, **kwargs):
         super(MainApp, self).__init__(**kwargs)
         self.theme_cls.primary_palette = 'Grey'
         self.theme_cls.accent_palette = 'Teal'
         self.theme_cls.theme_style = 'Dark'
+
+    def on_start(self):
+        pass
+
+    def test_me(self):
+        print 'main app test me'
+
     def build(self):
         self.settings_cls = SettingsWithSidebar
 
@@ -45,6 +68,7 @@ class MainApp(App):
         self.manager.get_screen('home_screen').build_home_screen()
 
         keybinding.start(Window, App)
+
         return self.manager
 
     # @profile()
