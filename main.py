@@ -1,4 +1,6 @@
 __version__ = '1.0000000028'
+import sys
+sys.path.append( '..' )
 DEBUG = True
 import kivy
 kivy.require('1.9.1')
@@ -15,16 +17,33 @@ from kivy.uix.screenmanager import ScreenManager
 
 from kivy.core.window import Window
 from kivy.modules import keybinding
+from gui.theme_engine.theme import ThemeManager
+from gui.theme_engine.toolbar import Toolbar
+from gui.theme_engine.list import MaterialList
 from gui.screens.comic_book_screen import ComicBookScreen
+from gui.screens.home_screen import HomeScreen
+from kivy.uix.settings import SettingsWithSidebar,SettingsWithTabbedPanel
 # from memory_profiler import profile
+
+
+
 class AppScreenManager(ScreenManager):
     pass
 
 class MainApp(App):
+    theme_cls = ThemeManager()
+    version = __version__
+    def __init__(self, **kwargs):
+        super(MainApp, self).__init__(**kwargs)
+        self.theme_cls.primary_palette = 'Grey'
+        self.theme_cls.accent_palette = 'Teal'
+        self.theme_cls.theme_style = 'Dark'
     def build(self):
-        self.manager = AppScreenManager()
+        self.settings_cls = SettingsWithSidebar
 
-        self.manager.get_screen('comic_book_screen').load_comic_book(1755)
+        self.manager = AppScreenManager()
+        self.manager.get_screen('home_screen').build_home_screen()
+
         keybinding.start(Window, App)
         return self.manager
 

@@ -1,5 +1,6 @@
 import json
 
+
 settings_json_server = json.dumps([
     {'type':    'title',
      'title':   'ComicStream Server Settings'},
@@ -15,12 +16,16 @@ settings_json_server = json.dumps([
      'desc':    'Where to store Comic Pages Buffer',
      'section': 'Server',
      'key':     'storagedir'},
+
+
+
     {
-    'type':     'numeric',
+    'type':     'options',
     'title':    'Maximum Page Height',
-    'desc':     'This will set the max height that image will be be grabbed from server 0 for off',
+    'desc':     'This will set the max height that image will be be grabbed from server default is 1500 due to memory constainst',
     'section':  'Server',
-    'key':      'max_height'
+    'key':      'max_height',
+    'options': ['1500','1280','1200','1024']
     }
     ])
 

@@ -1,6 +1,5 @@
 #:import win kivy.core.window.Window
 <ComicBookScreen>:
-
     carousel_id: None
     max_height:self.max_height
     size: root.size
@@ -11,14 +10,68 @@
         ComicCarousel:
             id: comic_book_carousel
 
-        Button:
+        ControlButton:
+            id: tet1
+            pos_hint: {'x': .0000000001, 'y': .85}
+            text: "Back to Home"
+            size_hint: .2, .20
+            on_release: app.manager.current = 'home_screen'
+            opacity: 0
+        ControlButton:
+            id: btn_collection
+            pos_hint: {'x': .3, 'y': .85}
+            text: 'Open Collection Scroll'
+            size_hint: .4, .20
+            opacity: 1
+            on_release: root.comicscreen_open_collection_popup()
+
+#        ControlButton:
+#            pos_hint: {'x': .8, 'y': .85}
+#            text: "Open Magnifying glass"
+#            size_hint: .2, .20
+#            opacity: 0
+#            on_release: root._open_mag_glass()
+#
+#        ControlButton:
+#            pos_hint: {'center_x': .35, 'center_y': .35}
+#            text: "Call Test"
+#            size_hint: .05, .05
+#            on_release: root._cal_id()
+#            opacity: 1
+
+        ControlButton:
+            pos_hint: {'x': .0000000001, 'y': .0001}
+            text: "Prev"
+            size_hint: .2, .6
+            on_release: root.load_prev_slide(self)
+            opacity: 0
+        ControlButton:
+            pos_hint: {'x': .8, 'y': .0001}
+            text: "Next"
+            size_hint: .2, .6
+            on_release: root.load_next_slide(self)
+            #on_release: my_carousel.load_next()
+            opacity: 0
+
+        ControlButton:
             pos_hint: {'x': .3, 'y': .0001}
             text: 'Open Page Scroll'
             size_hint: .4, .2
             opacity: 1
+            on_release: root.page_nav_popup_open()
+        ControlButton:
+            pos_hint: {'x': .3, 'y': .4}
+            text: 'Open Random'
+            size_hint: .2, .2
+            opacity: 1
             on_release: root.load_random_comic()
 
 
+
+
+
+#Rules
+# <<<<<Main comic Page display
 <ComicBookPageScatter>:
     do_rotation: False
     do_translation_x: False
@@ -34,3 +87,67 @@
     allow_stretch: True
     size_hint: (1,1)
     size: self.size
+ #>>>>>>
+
+ #<<<<<<<<<<<<Page Thumbs
+<ThumbPopPageInnerGrid>:
+    cols: 1
+    rows: 2
+    size_hint: (None,None)
+    size: (130,200)
+    spacing: 5
+<ThumbPopPageImage@Image>:
+    allow_stretch: True
+    size: (130,200)
+    size_hint: (None, None)
+<ThumbPopPagebntlbl>:
+    size_hint: (None,None)
+    size: (10,10)
+    text_color: (0,0,0)
+    background_color: (1,1,1,.5)
+
+<ComicThumbScroll@Scrollview>:
+    size_hint: (1,1)
+    do_scroll_x: True
+    do_scroll_y: False
+    id: page_thumb_scroll
+
+#>>>>>>>>>>>>>>
+
+#>>>>>>Top Nav Collection
+
+<ComicsCollectionScroll>:
+    size_hint: (1,.8)
+    do_scroll_x: True
+    do_scroll_y: False
+
+
+<ComicsCollectionOuterGrid>:
+    rows: 1
+    size_hint: (None,None)
+    spacing: 0
+    padding_horizontal: 0
+
+<ComicsCollectionInnerGrid>:
+    cols: 1
+    rows: 2
+    size_hint: (None,None)
+    size: (130,200)
+    spacing: 5
+<ComicsCollectionImage>:
+
+    allow_stretch: True
+    size: (130,200)
+    size_hint: (None, None)
+
+<ComicsCollectionPagebntlb>:
+    font_style:			'Body1'
+    size_hint:			None, None
+    font_size:          12
+    height:				self.texture_size[1]
+    text_size:			self.width, None
+    halign:				'center'
+
+    text_color: (0,0,0)
+    background_color: (1,1,1,.5)
+#>>>>>>>>>>>>>>
