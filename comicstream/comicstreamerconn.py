@@ -1,10 +1,5 @@
-from kivy.network.urlrequest import UrlRequest
 from kivy.app import App
-from comic_data import ComicCollection,ComicBook
-from kivy.logger import Logger
-from comicstream.url_get import CustomUrlRequest
-from kivy.network.urlrequest import UrlRequest
-import inspect
+
 
 class Bob(object):
     pass

@@ -1,11 +1,18 @@
-#:include force gui/kv_files/comic_book_screen.kv
-#:include force gui/kv_files/home_screen.kv
+
+#:include force gui/kv_files/common.kv
+
+
 <AppScreenManager>:
     id: manager
     HomeScreen:
 
     ComicBookScreen:
         id: comic_book_screen
+    EntitiesScreen:
+        id: entities_screen
+    ComicCollectionScreen
+        id: comic_collection_screen
+
 
 
 

@@ -1,51 +1,60 @@
+# -*- coding: utf-8 -*-
+import json
+import inspect
+
 from kivy.app import App
 from kivy.uix.image import AsyncImage
 from kivy.uix.button import ButtonBehavior
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.scrollview import ScrollView
+from gui.widgets.custom_effects import RectangularRippleBehavior
 from kivy.uix.label import Label
 from kivy.properties import ObjectProperty, ListProperty
 from kivy.clock import Clock
-from comicstream.comic_data import ComicCollection, ComicBook
 from kivy.uix.screenmanager import Screen
-from comicstream.url_get import CustomUrlRequest
-from gui.widgets.custom_widgets import AppScreenTemplate,AppNavDrawer
-from gui.widgets.custom_effects import RectangularRippleBehavior,CircularRippleBehavior
-
 from kivy.logger import Logger
-import inspect
+from gui.widgets.custom_widgets import AppScreenTemplate,AppNavDrawer
+from data.comic_data import ComicCollection, ComicBook
+from comicstream.url_get import CustomUrlRequest
+from gui.widgets.custom_widgets import CommonComicsInnerGrid,\
+    CommonComicsOuterGrid,CommonComicsPagebntlbl,CommonComicsPageImage,CommonComicsScroll
 
-
-
+from data.settingsjson import settings_json_screen_tap_control
+from gui.screens.series_screen import SeriesScreen
+from gui.screens.entities_screen import EntitiesScreen
+from pprint import pprint
 
 class HomeScreen(AppScreenTemplate):
     tile_icon_data = ListProperty()
+
     nav = ObjectProperty()
     def __init__(self,**kwargs):
         super(HomeScreen, self).__init__(**kwargs)
 
+    def do_series(self):
+        screen = SeriesScreen()
+        self.app.manager.add_widget(screen)
+        self.app.manager.current = 'series_screen'
+
+    def do_entities(self):
+
+        self.app.manager.current = 'entities_screen'
     def test_me(self):
-        self.nav.toggle_state()
-        print 'ok ok ok ok '
+      print  self.collection.do_sort_issue
+
+    def go_comic_screen(self):
+        if self.app.comic_loaded == 'yes':
+            self.app.manager.current = 'comic_book_screen'
+        else:
+            self.app.dialog_error('No Comic Loaded','Comic Screen Error')
     def build_home_screen(self):
-        root = self
-        app = App.get_running_app()
 
-        root.toolbar.nav_button = ["md-keyboard-backspace",'']
-        root.toolbar.add_action_button("md-book")
-        root.toolbar.add_action_button("md-settings",lambda *x: app.open_settings())
+        data = json.loads(settings_json_screen_tap_control)
 
 
-        self.tile_data = [{'text': "Button 1", 'secondary_text': "With a secondary text"},
-                          {'text': "Button 2", 'secondary_text': "With a secondary text"},
-                          {'text': "Button 3", 'secondary_text': "With a secondary text"},
-                          {'text': "Button 4", 'secondary_text': "With a secondary text"}]
-
-        self.tile_single_data = [{'text': "Button 1"},
-                                  {'text': "Button 2"},
-                                  {'text': "Button 3"},
-                                  {'text': "Button 4"}]
-
+        self.toolbar.nav_button = ["md-keyboard-backspace",self.load_last_screen]
+        self.toolbar.add_action_button("md-book",lambda *x: self.go_comic_screen() )
+        self.toolbar.add_action_button("md-settings",lambda *x: self.app.open_settings())
         self.tile_icon_data = [
                                 {'icon': '', 'text': '',
                                 'secondary_text': '',
@@ -64,97 +73,55 @@ class HomeScreen(AppScreenTemplate):
 
         self.build_recent_comics()
     def build_collection(self,req, results):
-        print self.ids
+
         data = results
         new_collection = ComicCollection()
         for item in data['comics']:
             new_comic = ComicBook(item)
             new_collection.add_comic(new_comic)
-        print new_collection.size
+
         self.collection = new_collection
         scroll = self.ids.recent_comics_scroll
-        grid = RecentComicsOuterGrid(id='outtergrd')
+        grid = CommonComicsOuterGrid(id='outtergrd')
         grid.bind(minimum_width=grid.setter('width'), )
-        base_url = App.get_running_app().config.get('Server', 'url')
+        base_url = self.app.config.get('Server', 'url')
         for comic in self.collection.comics:
             comic_name = '%s #%s'%(str(comic.series),str(comic.issue))
             src_thumb = comic.thumb_url
-            inner_grid = RecentComicsInnerGrid(id='inner_grid'+str(comic.comic_id_number))
-            comic_thumb = RecentComicsPageImage(source=src_thumb,id=str(comic.comic_id_number))
+            inner_grid = CommonComicsInnerGrid(id='inner_grid'+str(comic.comic_id_number))
+            comic_thumb = CommonComicsPageImage(source=src_thumb,id=str(comic.comic_id_number))
             comic_thumb.comic = comic
             comic_thumb.comics_collection = self.collection
             inner_grid.add_widget(comic_thumb)
             comic_thumb.bind(on_release=comic_thumb.click)
-            smbutton = RecentComicsPagebntlbl(text=comic_name)
+            smbutton = CommonComicsPagebntlbl(text=comic_name)
             inner_grid.add_widget(smbutton)
             grid.add_widget(inner_grid)
         scroll.add_widget(grid)
-    def got_error(self,req, results):
-        print 'got_error'
-        Logger.critical('ERROR in %s %s'%(inspect.stack()[0][3],results))
-    def got_time_out(self,req, results):
-        Logger.critical('ERROR in %s %s'%(inspect.stack()[0][3],results))
-    def got_failure(self,req, results):
-        Logger.critical('ERROR in %s %s'%(inspect.stack()[0][3],results))
-    def got_redirect(self,req, results):
-        Logger.critical('ERROR in %s %s > %s'%(inspect.stack()[0][3],req,results))
+
+    def got_error(self,req, error):
+            error_title = 'Server Error'
+            self.app.dialog_error(error,error_title)
+            Logger.critical('ERROR in %s %s'%(req,error))
+
     def build_recent_comics(self):
 
-        self.base_url = App.get_running_app().config.get('Server', 'url')
-        recent_list  = "%s/comiclist?order=-added&per_page=10" % (self.base_url)
-        req = CustomUrlRequest(recent_list,
+        base_url = App.get_running_app().config.get('Server', 'url')
+        api_key = App.get_running_app().config.get('Server', 'api_key')
+        recent_url  = "%s/comiclist?api_key=%s&order=-added&per_page=10" % (base_url,api_key)
+        req = CustomUrlRequest(recent_url,
                                self.build_collection,
                                on_error=self.got_error,
-                               on_failure=self.got_failure,
-                               on_redirect=self.got_redirect,
-                               timeout = 15,
+                               on_failure=self.got_error,
+                               on_redirect=self.got_error,
+                               timeout = 15,debug=True
                                )
 
     def call_test(self):
         print self.collection
 
 #<<<<Following are class for recent list>>>>>>>>>
-class RecentComicsScroll(ScrollView):
-    pass
 
-class RecentComicsOuterGrid(GridLayout):
-    pass
-
-class RecentComicsPagebntlbl(Label):
-    pass
-
-class RecentComicsInnerGrid(GridLayout):
-    pass
-
-class RecentComicsPageImage(RectangularRippleBehavior,ButtonBehavior,AsyncImage):
-    comic = ObjectProperty()
-    comics_collection = ObjectProperty()
-    def enable_me(self,instance):
-        Logger.debug('enabling %s'%self.id)
-        self.disabled = False
-    # def on_press(self):
-    #     self.disabled = True
-    #     app = App.get_running_app()
-    #     app.root.current = 'comic_screen'
-    #     comic_screen = app.root.get_screen('comic_screen')
-    #     comic_screen.load_comic(self.comic,self.comics_collection)
-    #     Clock.schedule_once(lambda x:self.enable_me, .05)
-    #
-    # def on_release(self,instance):
-    #     self.disabled = True
-    #     app = App.get_running_app()
-    #     app.root.current = 'comic_screen'
-    #     comic_screen = app.root.get_screen('comic_screen')
-    #     comic_screen.load_comic(self.comic,self.comics_collection)
-    #     Clock.schedule_once(lambda x:self.enable_me, .05)
-    #     return super(RecentComicsPageImage, self).on_release(instance)
-    def click(self,instance):
-        self.disabled = True
-        app = App.get_running_app()
-        app.root.current = 'comic_book_screen'
-        comic_screen = app.root.get_screen('comic_book_screen')
-        comic_screen.load_comic_book(self.comic,self.comics_collection)
-        Clock.schedule_once(self.enable_me, .05)
 
 #<<<<<<<<<<
 class HomeScreeNavigationDrawer(AppNavDrawer):

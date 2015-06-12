@@ -63,7 +63,6 @@ class SlidingPanel(RelativeLayout):
 	def dismiss(self):
 		if self.status != "open":
 			return
-		print 'close'
 		self.update_animations()
 		self.shadow.fade_out(self.animation_length)
 		self.animation_dismiss.start(self)

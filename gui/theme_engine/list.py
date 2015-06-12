@@ -17,7 +17,7 @@ from kivy.uix.anchorlayout import AnchorLayout
 from kivy.clock import Clock
 from kivy.uix.widget import Widget
 from label import MaterialLabel
-from ripplebehavior import RippleBehavior
+from ripplebehavior import RectangularRippleBehavior as RippleBehavior
 from theme import ThemeBehaviour
 from material_resources import get_rgba_color
 from gui.theme_engine import images_path

@@ -52,12 +52,21 @@
             RaisedButton:
                 size_hint:			None, None
                 size:				dp(130), dp(36)
+                pos_hint:			{'x':.3, 'top': .94}
+                elevation_normal:	2
+                theme_style:		'Dark'
+                disabled:			False
+                text:               "Browse Entities"
+                on_release:         root.do_entities()
+            RaisedButton:
+                size_hint:			None, None
+                size:				dp(130), dp(36)
                 pos_hint:			{'x': 0.001, 'top': .94}
                 elevation_normal:	2
                 theme_style:		'Dark'
                 disabled:			False
                 text:               "Series List"
-                on_release:         root.show_popup_list_view()
+                on_release:         root.do_series()
 
 
 ##
@@ -93,49 +102,13 @@
                     size_hint:					0.8, None
                     height:						dp(300)
                     pos_hint:					{'center_x': 0.5, 'center_y': 0.35}
-                RecentComicsScroll:
+                CommonComicsScroll:
                     id: recent_comics_scroll
                     pos_hint: {'top': .8}
 
 
 
 
-
-
-<RecentComicsScroll>:
-    size_hint: (1,.8)
-    do_scroll_x: True
-    do_scroll_y: False
-
-
-<RecentComicsOuterGrid>:
-    rows: 1
-    size_hint: (None,None)
-    spacing: 5
-    padding_horizontal: 5
-
-<RecentComicsInnerGrid>:
-    cols: 1
-    rows: 2
-    size_hint: (None,None)
-    size: (130,200)
-    spacing: 5
-
-
-<RecentComicsPageImage>:
-    allow_stretch: True
-    size: (130,200)
-    size_hint: (None, None)
-<RecentComicsPagebntlbl>:
-    font_style:			'Body1'
-    size_hint:			None, None
-    font_size:          12
-    height:				self.texture_size[1]
-    text_size:			self.width, None
-    halign:				'center'
-
-    text_color: (0,0,0)
-    background_color: (1,1,1,.5)
 
 
 #<IconTextTile>:

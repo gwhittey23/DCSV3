@@ -1,0 +1,56 @@
+<ComicCollectionScreen>:
+    name: 'comic_collection_screen'
+    toolbar: 		_toolbar
+    nav: 			_nav
+    m_scroll:       _scroll
+    EntitieScreenNavigationDrawer:
+        id: 				_nav
+        side:				'left'
+        anim_type: 'slide_above_simple'
+        ScrollView:
+            do_scroll_x:	False
+            size_hint_y:	None
+            height:			root.height - _toolbar.height
+
+            MaterialList:
+                tile_rows:					2
+                list_type:					'icon_text'
+                list_data:					root.tile_icon_data
+                allow_empty_selection:		False
+                text_color_selected:		app.theme_cls.primary_dark
+                background_color_selected:	(1, 1, 1, 0)
+                divider_color:				app.theme_cls.divider_color()
+                size_hint:					1, None
+                height:						dp(340)
+        RelativeLayout:
+            orientation:            'vertical'
+            id:                     rl1
+            Toolbar:
+                id: _toolbar
+                title:				    "D.C.S Comic Collection Screen " + app.version
+                title_theme_style:	    'Dark'
+                icons_theme_style:	    'Dark'
+                elevation:			    6
+                pos_hint:			    {'x': 0, 'top': 1}
+
+            FloatLayout:
+                pos_hint:			    {'x': .0001,'top': .9}
+                size_hint:              1,1
+                id:                     fl1
+                MaterialLabel:
+                    text:				"Most Recent Additions"
+                    font_style:			'Body1'
+                    size_hint:			None, None
+                    width:				dp(200)
+                    height:				dp(40)
+                    text_size:			self.size
+                    halign:				'center'
+                    valign:				'middle'
+                ScrollView:
+                    id:                 _scroll
+                    size_hint:          (.99,.85)
+                    do_scroll_y:        True
+                    do_scroll_x:        False
+                    pos_hint:           {'x': .01, 'center_y': .6}
+
+

@@ -1,6 +1,5 @@
 import json
 
-
 settings_json_server = json.dumps([
     {'type':    'title',
      'title':   'ComicStream Server Settings'},
@@ -26,8 +25,22 @@ settings_json_server = json.dumps([
     'section':  'Server',
     'key':      'max_height',
     'options': ['1500','1280','1200','1024']
-    }
+    },
+    {'type':    'bool',
+     'title':   'Use Api key',
+     'desc':    'Use API key to access server',
+     'section': 'Server',
+     'key':     'use_api_key'},
+
+      {'type':    'string',
+     'title':   'API key',
+     'desc':    'Api Key for server',
+     'section': 'Server',
+     'key':     'api_key'},
+
+
     ])
+
 
 
 settings_json_dispaly = json.dumps(
@@ -54,6 +67,99 @@ settings_json_dispaly = json.dumps(
     'key':      'mag_glass_size'},
 
     ])
+
+tap_options = ['Next Page','Prev Page','Next Comic','Prev Comic','Open Page Nav','Open Collection Browser',
+                'Return to Home Screen', 'Disabled']
+settings_json_screen_tap_control = json.dumps(
+    [
+     {'type':   'title',
+     'title':   'Settings for how Screen taps control Comic Reader.'},
+
+    {
+    'type':     'options',
+    'title':    'Bottom Left Screen',
+    'desc':     'This will set the Bottom Right Screen Control',
+    'section':  'Screen Tap Control',
+    'key':      'bottom_left',
+    'options':   tap_options
+    },
+
+     {
+    'type':     'options',
+    'title':    'Bottom Center Screen',
+    'desc':     'This will set the Bottom Right Screen Control',
+    'section':  'Screen Tap Control',
+    'key':      'bottom_center',
+    'options':  tap_options
+    },
+     {
+    'type':     'options',
+    'title':    'Bottom Right Screen',
+    'desc':     'This will set the Bottom Right Screen Control',
+    'section':  'Screen Tap Control',
+    'key':      'bottom_right',
+    'options':  tap_options
+    },
+
+    {
+    'type':     'options',
+    'title':    'Top Left Screen',
+    'desc':     'This will set the Bottom Right Screen Control',
+    'section':  'Screen Tap Control',
+    'key':      'top_left',
+    'options':  tap_options
+    },
+
+     {
+    'type':     'options',
+    'title':    'Top Center Screen',
+    'desc':     'This will set the Bottom Right Screen Control',
+    'section':  'Screen Tap Control',
+    'key':      'top_center',
+    'options':  tap_options
+    },
+     {
+    'type':     'options',
+    'title':    'Top Right Screen',
+    'desc':     'This will set the Bottom Right Screen Control',
+    'section':  'Screen Tap Control',
+    'key':      'top_right',
+    'options':  tap_options
+    },
+        {
+    'type':     'options',
+    'title':    'Middle Left Screen',
+    'desc':     'This will set the Bottom Right Screen Control',
+    'section':  'Screen Tap Control',
+    'key':      'middle_left',
+    'options':  tap_options
+    },
+
+     {
+    'type':     'options',
+    'title':    'Middle Center Screen',
+    'desc':     'This will set the Bottom Right Screen Control',
+    'section':  'Screen Tap Control',
+    'key':      'middle_center',
+    'options':  tap_options
+    },
+     {
+    'type':     'options',
+    'title':    'Middle Right Screen',
+    'desc':     'This will set the Bottom Right Screen Control',
+    'section':  'Screen Tap Control',
+    'key':      'middle_right',
+    'options':  tap_options
+    },
+    {'type':     'numeric',
+    'title':    'Double Tap Time',
+    'desc':     'Time in milliseconds during a double tap is allowed',
+    'section':  'Screen Tap Control',
+    'key':      'dbl_tap_time'},
+
+    ])
+
+
 
 
 

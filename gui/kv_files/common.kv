@@ -1,0 +1,39 @@
+#:include force gui/kv_files/comic_book_screen.kv
+#:include force gui/kv_files/home_screen.kv
+#:include force gui/kv_files/series_screen.kv
+#:include force gui/kv_files/entities_screen.kv
+#:include force gui/kv_files/comic_book_screen.kv
+#:include force gui/kv_files/comic_collection_screen.kv
+#rules use to display common comic cover image.
+<CommonComicsScroll>:
+    size_hint: (1,.8)
+    do_scroll_x: True
+    do_scroll_y: False
+<CommonComicsOuterGrid>:
+    rows: 1
+    size_hint: (None,None)
+    spacing: 5
+    padding_horizontal: 5
+<CommonComicsInnerGrid>:
+    cols: 1
+    rows: 2
+    size_hint: (None,None)
+    size: (130,200)
+    spacing: 5
+<CommonComicsPageImage>:
+    allow_stretch: True
+    size: (130,200)
+    size_hint: (None, None)
+<CommonComicsPagebntlbl>:
+    font_style:			'Body1'
+    size_hint:			None, None
+    font_size:          12
+    height:				self.texture_size[1]
+    text_size:			self.width, None
+    halign:				'center'
+    text_color: (0,0,0)
+    background_color: (1,1,1,.5)
+
+
+
+

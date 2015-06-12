@@ -8,7 +8,8 @@ from kivy.properties import AliasProperty
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.anchorlayout import AnchorLayout
 from gui.theme_engine.label import MaterialLabel
-from ripplebehavior import RippleBehavior, CircularRippleBehavior
+from ripplebehavior import RectangularRippleBehavior as RippleBehavior
+from ripplebehavior import CircularRippleBehavior
 from elevationbehaviour import ElevationBehaviour
 from kivy.animation import Animation
 from material_resources import get_rgba_color

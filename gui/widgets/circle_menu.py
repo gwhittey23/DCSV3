@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 '''A round menu that appears on a long touch
 '''
 from __future__ import print_function
