@@ -1,7 +1,9 @@
 <EntitiesScreen>:
     name: 'entities_screen'
-    toolbar: 		_toolbar
-    nav: 			_nav
+    toolbar: 		    _toolbar
+    nav: 			    _nav
+    letter_bnt_stack:   _letter_bnt_stack
+    m_scroll:           entities_scroll
     EntitieScreenNavigationDrawer:
         id: 				_nav
         side:				'left'
@@ -30,18 +32,19 @@
                 icons_theme_style:	'Dark'
                 elevation:			6
                 pos_hint:			{'x': 0, 'top': 1}
-            MaterialList:
+            MaterialLabel:
+                text:               '/'
+                font_style:			'Button'
+                height:				self.texture_size[1]
+
+                text_size:			self.width, None
+                halign:				'left'
+                valign:				'middle'
                 id:                         entities_location
-                title:						"Entities Root"
-                tile_rows:					2
-                list_type:					'text'
-                list_data:					root.entities_data
-                allow_empty_selection:		False
-                text_color_selected:		app.theme_cls.primary_light
                 background_color_selected:	(1, 1, 1, 0)
-                size_hint:					1, .9
-                height:						dp(200)
-                pos_hint:					{'x': 0.001, 'top': .9}
+                size_hint:			1, None
+
+                pos_hint:					{'x': 0.02, 'top': .9}
             RaisedButton:
                 size_hint:			None, None
                 size:				dp(130), dp(36)
@@ -60,25 +63,40 @@
                 disabled:			False
                 text:               "Up Level"
                 on_release:         root.go_up_level()
-            StackLayout:
-                id:                 letter_bnt_stack
-                pos_hint:			{'x':.46, 'top': .94}
-                RaisedButton:
-                    size_hint:			None, None
-                    size:				dp(20), dp(36)
+            GridLayout:
+                rows:               2
 
-                    elevation_normal:	2
-                    theme_style:		'Dark'
-                    disabled:			False
-                    text:               "A"
-                    on_release:         root.go_up_level()
+                id:                 _letter_bnt_stack
+                pos_hint:			{'x':.46, 'top': .94}
+                size_hint:          (None,None)
+            ScrollView:
+                id:                 entities_scroll
+                size_hint:          (.95,.83)
+                do_scroll_y:        True
+                do_scroll_x:        False
+                pos_hint:           {'x': .05, 'y': .01}
+
+
+
+
+
+
+
+
+#                RaisedButton:
+#                    size_hint:			None, None
+#                    size:				dp(20), dp(36)
+#
+#                    elevation_normal:	2
+#                    theme_style:		'Dark'
+#                    disabled:			False
+#                    text:               "A"
+#                    on_release:         root.go_up_level()
 <EntitieItemButton>:
-    size_hint:			None, None
-    size:				dp(130), dp(36)
-    pos_hint:			{'x': 0.001, 'top': .94}
-    elevation_normal:	2
+    background_color:self.background_color_disabled if self.disabled else (self.background_color if self.state == 'normal' else self.background_color_down)
+    background_down: ''
     theme_style:		'Dark'
     disabled:			False
-    text:               "Series List"
-    on_release:         self.load_series()
+    text:               self.text
+
 

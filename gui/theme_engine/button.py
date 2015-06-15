@@ -250,7 +250,7 @@ class RaisedButton(ThemeBehaviour, RippleBehavior, ElevationBehaviour, ButtonBeh
 		self.elevation_press_anim = Animation(elevation=self.elevation_raised, duration=.2, t='out_quad')
 		self.elevation_release_anim = Animation(elevation=self.elevation_normal, duration=.2, t='out_quad')
 
-
+		print 'background_color:%s'%self.background_color
 	def on_disabled(self, instance, value):
 		super(RaisedButton, self).on_disabled(instance, value)
 		if self.disabled:

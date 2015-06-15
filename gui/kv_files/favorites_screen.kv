@@ -1,0 +1,128 @@
+<FavoritesScreen>:
+    name: 'favorites_screen'
+    toolbar: 		_toolbar
+    nav: 			_nav
+    main:           _main
+#    fav_item:       _fav_item
+#    fav_folder:     _fav_folder
+    FavoritesScreenNavigationDrawer:
+        id: 				_nav
+        side:				'left'
+        anim_type: 'slide_above_simple'
+        ScrollView:
+            do_scroll_x:	False
+            size_hint_y:	None
+            height:			root.height - _toolbar.height
+            MaterialList:
+                tile_rows:					2
+                list_type:					'icon_text'
+                list_data:					root.tile_icon_data
+                allow_empty_selection:		False
+                text_color_selected:		app.theme_cls.primary_dark
+                background_color_selected:	(1, 1, 1, 0)
+                divider_color:				app.theme_cls.divider_color()
+                size_hint:					1, None
+                height:						'340dp'
+        RelativeLayout:
+            id:                     _main
+            orientation:            'vertical'
+            Toolbar:
+                id: _toolbar
+                title:				"D.C.S Favroites Screen " + app.version
+                title_theme_style:	'Dark'
+                icons_theme_style:	'Dark'
+                elevation:			6
+                pos_hint:			{'x': 0, 'top': 1}
+
+
+
+<FavroitesInnerGrid>:
+    cols: 1
+    rows: 2
+    size_hint: (None,None)
+    size: ('97.5dp','150dp')
+    spacing: 5
+<FavroitesCoverImage@Widget>:
+    allow_stretch: False
+    size: ('97.5dp','150dp')
+    size_hint: (None, None)
+
+
+<FavroitesLabel>:
+    font_style:			'Body1'
+    size_hint:			None, None
+    font_size:          '8sp'
+    height:				self.texture_size[1]
+    text_size:			self.width, None
+    halign:				'center'
+    text_color: (0,0,0)
+    background_color: (1,1,1,.5)
+
+<FavoritesTrash@Widget>:
+    size_hint: None, None
+    size: '60dp','60dp'
+    pos_hint:			{'x': .008, 'bottom': .85}
+    Image:
+        size_hint: None, None
+        size: ('97.5dp','150dp')
+        source: 'gui/theme_engine/images/trash.png'
+        pos: root.x,root.y
+
+
+
+<FavoritesFolder@Widget>:
+    size_hint: None, None
+    size: '60dp','60dp'
+    pos_hint:			{'x': .008, 'top': .85}
+    Image:
+        size: '60dp','60dp'
+        source: 'atlas://data/images/defaulttheme/filechooser_folder'
+        pos: root.x,root.y
+    Label:
+        text: 'Test'
+        halign: 'center'
+        size: '16dp', '16dp'
+        pos: root.center_x - self.width / 2, root.y + dp(16)
+
+#
+#<FavortieItem@GridLayout>:
+#    rows:2
+#    cols:1
+#    padding: (0,0,0,30)
+#    size: (65,100)
+#    AsyncImage:
+#        source:'http://192.168.0.3:32500/comic/106/thumbnail#.jpg'
+#        allow_stretch: True
+#        size: (65,100)
+#        size_hint: (None, None)
+#    Label:
+#        text: 'Favorites Comic'
+#        halign: 'center'
+#        valign: 'bottom'
+#        size: (65,100)
+#
+
+#<Widget>:
+#    canvas.after:
+#        Line:
+#            rectangle: self.x+1,self.y+1,self.width-1,self.height-1
+#            dash_offset: 5
+#            dash_length: 3
+#
+#<Widgets>:
+#    AnchorLayout:
+#        anchor_x: 'right'
+#        anchor_y: 'bottom'
+#        GridLayout:
+#            cols: 3
+#            size_hint: .6,.6
+#            Label:
+#            StackLayout:
+#                orientation: 'lr-tb'
+#                Widget:
+#                    size_hint: .2,.2
+#                Button:
+#                    size_hint: .3,.3
+#                    text: "how?"
+#            Widget:
+#            Widget:

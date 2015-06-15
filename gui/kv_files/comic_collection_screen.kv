@@ -3,6 +3,7 @@
     toolbar: 		_toolbar
     nav: 			_nav
     m_scroll:       _scroll
+
     EntitieScreenNavigationDrawer:
         id: 				_nav
         side:				'left'
@@ -37,20 +38,28 @@
                 pos_hint:			    {'x': .0001,'top': .9}
                 size_hint:              1,1
                 id:                     fl1
-                MaterialLabel:
-                    text:				"Most Recent Additions"
-                    font_style:			'Body1'
-                    size_hint:			None, None
-                    width:				dp(200)
-                    height:				dp(40)
-                    text_size:			self.size
-                    halign:				'center'
-                    valign:				'middle'
+                Image:
+                    source:'gui/theme_engine/images/wood_bk.jpg'
+                    # self here refers to the widget i.e BoxLayout
+                    pos: self.pos
+                    allow_stretch: True
+                    keep_ratio: False
+                    width:root.width
+                    size_hint:None,None
+                    height:root.height-(_toolbar.height)
+
                 ScrollView:
                     id:                 _scroll
                     size_hint:          (.99,.85)
                     do_scroll_y:        True
                     do_scroll_x:        False
                     pos_hint:           {'x': .01, 'center_y': .6}
+
+
+
+
+
+
+
 
 

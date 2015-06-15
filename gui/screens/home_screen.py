@@ -16,14 +16,15 @@ from kivy.logger import Logger
 from gui.widgets.custom_widgets import AppScreenTemplate,AppNavDrawer
 from data.comic_data import ComicCollection, ComicBook
 from comicstream.url_get import CustomUrlRequest
-from gui.widgets.custom_widgets import CommonComicsInnerGrid,\
-    CommonComicsOuterGrid,CommonComicsPagebntlbl,CommonComicsPageImage,CommonComicsScroll
+from gui.widgets.custom_widgets import CommonComicsCoverInnerGrid,\
+    CommonComicsOuterGrid,CommonComicsCoverLabel,CommonComicsCoverImage,CommonComicsScroll
 
 from data.settingsjson import settings_json_screen_tap_control
 from gui.screens.series_screen import SeriesScreen
 from gui.screens.entities_screen import EntitiesScreen
+from gui.screens.favorites_screen import FavoritesScreen
 from pprint import pprint
-
+import pickle
 class HomeScreen(AppScreenTemplate):
     tile_icon_data = ListProperty()
 
@@ -32,46 +33,19 @@ class HomeScreen(AppScreenTemplate):
         super(HomeScreen, self).__init__(**kwargs)
 
     def do_series(self):
-        screen = SeriesScreen()
-        self.app.manager.add_widget(screen)
-        self.app.manager.current = 'series_screen'
+        self.app.manager.current = 'favorites_screen'
+
+    def on_enter(self, *args):
+        self.build_recent_comics()
+        super(HomeScreen, self).on_enter(*args)
 
     def do_entities(self):
-
         self.app.manager.current = 'entities_screen'
+
     def test_me(self):
       print  self.collection.do_sort_issue
 
-    def go_comic_screen(self):
-        if self.app.comic_loaded == 'yes':
-            self.app.manager.current = 'comic_book_screen'
-        else:
-            self.app.dialog_error('No Comic Loaded','Comic Screen Error')
-    def build_home_screen(self):
 
-        data = json.loads(settings_json_screen_tap_control)
-
-
-        self.toolbar.nav_button = ["md-keyboard-backspace",self.load_last_screen]
-        self.toolbar.add_action_button("md-book",lambda *x: self.go_comic_screen() )
-        self.toolbar.add_action_button("md-settings",lambda *x: self.app.open_settings())
-        self.tile_icon_data = [
-                                {'icon': '', 'text': '',
-                                'secondary_text': '',
-                                'callback': ''},
-                                {'icon': 'md-event', 'text': 'Event',
-                                'secondary_text': "An event button",
-                                'callback':self.test_me},
-                                {'icon':  'md-search', 'text': 'Search',
-                                'secondary_text': "A search button",
-                                'callback': self.nav.toggle_state},
-                                {'icon': 'md-thumb-up', 'text': 'Like',
-                                'secondary_text': "A like button",
-                                'callback': self.nav.toggle_state}
-
-                               ]
-
-        self.build_recent_comics()
     def build_collection(self,req, results):
 
         data = results
@@ -79,22 +53,25 @@ class HomeScreen(AppScreenTemplate):
         for item in data['comics']:
             new_comic = ComicBook(item)
             new_collection.add_comic(new_comic)
-
+            # f = open('comic_collection.pickle', 'w')
+            # pickle.dump(new_collection,f)
         self.collection = new_collection
         scroll = self.ids.recent_comics_scroll
+        scroll.clear_widgets()
         grid = CommonComicsOuterGrid(id='outtergrd')
         grid.bind(minimum_width=grid.setter('width'), )
         base_url = self.app.config.get('Server', 'url')
         for comic in self.collection.comics:
             comic_name = '%s #%s'%(str(comic.series),str(comic.issue))
-            src_thumb = comic.thumb_url
-            inner_grid = CommonComicsInnerGrid(id='inner_grid'+str(comic.comic_id_number))
-            comic_thumb = CommonComicsPageImage(source=src_thumb,id=str(comic.comic_id_number))
+
+            src_thumb = comic.get_cover()
+            inner_grid = CommonComicsCoverInnerGrid(id='inner_grid'+str(comic.comic_id_number))
+            comic_thumb = CommonComicsCoverImage(source=src_thumb,id=str(comic.comic_id_number))
             comic_thumb.comic = comic
             comic_thumb.comics_collection = self.collection
             inner_grid.add_widget(comic_thumb)
-            comic_thumb.bind(on_release=comic_thumb.click)
-            smbutton = CommonComicsPagebntlbl(text=comic_name)
+            # comic_thumb.bind(on_release=comic_thumb.click)
+            smbutton = CommonComicsCoverLabel(text=comic_name)
             inner_grid.add_widget(smbutton)
             grid.add_widget(inner_grid)
         scroll.add_widget(grid)

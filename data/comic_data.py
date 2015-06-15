@@ -3,10 +3,17 @@ from kivy.properties import ListProperty,ObjectProperty,DictProperty,StringPrope
 from kivy.app import App
 from kivy.uix.widget import Widget
 from kivy.uix.button import ButtonBehavior
-from kivy.uix.image import AsyncImage
+from kivy.uix.image import AsyncImage, Image
 from kivy.logger import Logger
 from comicsdb_models import *
 from operator import attrgetter
+import os.path
+from kivy.loader import Loader
+from functools import partial
+from kivy.clock import Clock
+from kivy.graphics import Fbo
+from kivy.graphics import (Canvas, Translate, Fbo, ClearColor, ClearBuffers,
+                            Scale)
 
 
 class ComicCollection(object):
@@ -67,15 +74,6 @@ class ComicCollection(object):
         for comic in self.comics:
             if comic.comic_id_number == comic_number:
                 return comic
-class ComicsCoverImage(ButtonBehavior,AsyncImage):
-    comic = ObjectProperty()
-    comics_collection = ObjectProperty()
-
-    def click(self,instance):
-        app = App.get_running_app()
-        app.root.current = 'comic_screen'
-        comic_screen = app.root.get_screen('comic_screen')
-        comic_screen.load_comic(self.comic,self.comics_collection)
 
 class ComicBook(object):
     cover = ObjectProperty()
@@ -120,6 +118,30 @@ class ComicBook(object):
         src_thumb = "%s/comic/%s/thumbnail?api_key=%s#.jpg" % (base_url, self.comic_id_number, api_key)
         self.thumb_url  = src_thumb
 
+    def save_cover(self,x,dt):
+        data_folder = App.get_running_app().config.get('Server', 'storagedir')
+        cover_file = '%s/%s.png'%(data_folder,str(self.comic_id_number))
+        x.export_to_png(cover_file)
+    def _proxy_loaded(self,proxyImage):
+        if proxyImage.image.texture:
+            x = Image(size=(130,200),allow_stretch=False,size_hint=(None, None))
+            x.texture = proxyImage.image.texture
+            Clock.schedule_once(partial(self.save_cover,x), .05)
+
+    def get_cover(self):
+        data_folder = App.get_running_app().config.get('Server', 'storagedir')
+        cover_file = '%s/%s.png'%(data_folder,str(self.comic_id_number))
+        try:
+            if os.path.isfile(cover_file):
+                return str(cover_file)
+            else:
+                proxyImage = Loader.image(self.thumb_url,nocache=True)
+                proxyImage.bind(on_load=partial(self._proxy_loaded))
+                return self.thumb_url
+
+        except:
+            Logger.critical('Something bad happened in loading cover')
+
     def json_data(self):
         pass
 
@@ -144,35 +166,3 @@ class ComicBook(object):
         #self.characters =  comic_data['characters']
         #self.teams = comic_data['teams']
 
-def build_db():
-    # try:
-    #     drop_all_tables()
-    # except:
-    #     Logger.info('somethin happened in drop_all_tables')
-
-    try:
-        create_all_tables()
-    except:
-        Logger.info('somethin happened in create_all_tables')
-
-    import sys
-    Logger.info('Start db rebuild')
-
-
-def drop_all_tables():
-    import sys
-    for cls in sys.modules[__name__].__dict__.values():
-        try:
-            if BaseModel in cls.__bases__:
-                cls.drop_table()
-        except:
-            pass
-def create_all_tables():
-    import sys
-    Logger.info('Start db rebuild')
-    for cls in sys.modules[__name__].__dict__.values():
-        try:
-            if BaseModel in cls.__bases__:
-                cls.create_table()
-        except:
-            pass

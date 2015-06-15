@@ -7,7 +7,7 @@ from kivy.app import App
 from kivy.uix.screenmanager import Screen
 from kivy.logger import Logger
 from kivy.uix.gridlayout import GridLayout
-from kivy.uix.scrollview import ScrollView
+#from kivy.uix.scrollview import ScrollView
 from kivy.uix.button import Button
 from kivy.uix.label import Label
 from itertools import groupby
@@ -17,8 +17,12 @@ from comicstream.url_get import CustomUrlRequest
 from gui.theme_engine.button import RaisedButton
 from gui.theme_engine.ripplebehavior import RectangularRippleBehavior
 from gui.theme_engine.list import MaterialList
+from gui.theme_engine.theme import ThemeBehaviour
+from gui.theme_engine.layouts import BackgroundColorCapableWidget
 from kivy.metrics import dp
+from kivy.clock import Clock
 from functools import partial
+
 import os
 
 class EntitiesScreen(AppScreenTemplate):
@@ -31,9 +35,14 @@ class EntitiesScreen(AppScreenTemplate):
     current_page_number = NumericProperty()
     up_level = StringProperty()
 
+    def on_enter(self, *args):
+        super(EntitiesScreen, self).on_enter(*args)
+        self.get_entities_data('', '')
+
     def __init__(self, **kw):
-        super(EntitiesScreen, self).__init__(**kw)
+
         self.number_per_page = 400
+        super(EntitiesScreen, self).__init__(**kw)
 
     def got_time_out(self, req, error):
         Logger.critical('ERROR in %s %s' % (inspect.stack()[0][3], error))
@@ -50,18 +59,11 @@ class EntitiesScreen(AppScreenTemplate):
         self.app.dialog_error(error, error_title)
         Logger.critical('ERROR in %s %s' % (req, error))
 
-    def go_screen_comic(self):
-        if self.app.comic_loaded == 'yes':
-            self.app.manager.current = 'comic_book_screen'
-        else:
-            self.app.dialog_error('No Comic Loaded', 'Comic Screen Error')
-
     def go_comic_collection_screen(self, comic_collection_path,callback):
         comic_collection_screen = self.app.manager.get_screen('comic_collection_screen')
         comic_collection_type = 'entities'
         self.app.manager.current = 'comic_collection_screen'
         comic_collection_screen.get_collection_data(comic_collection_type,comic_collection_path)
-
 
     def build_list_display(self, req, results):
         print results
@@ -79,29 +81,6 @@ class EntitiesScreen(AppScreenTemplate):
         # scroll.add_widget(grid)
         # self.add_widget(scroll)
 
-    def build_entities_screen(self):
-        self.toolbar.nav_button = ["md-keyboard-backspace",self.load_last_screen]
-        self.toolbar.add_action_button("md-home", lambda *x:self.go_home())
-        self.toolbar.add_action_button("md-book", lambda *x: self.go_screen_comic())
-        self.toolbar.add_action_button("md-settings", lambda *x: self.app.open_settings())
-        self.tile_icon_data = [
-            {'icon': '', 'text': '',
-             'secondary_text': '',
-             'callback': ''},
-            {'icon': 'md-event', 'text': 'Event',
-             'secondary_text': "An event button",
-             'callback': ''},
-            {'icon': 'md-search', 'text': 'Search',
-             'secondary_text': "A search button",
-             'callback': self.nav.toggle_state},
-            {'icon': 'md-thumb-up', 'text': 'Like',
-             'secondary_text': "A like button",
-             'callback': self.nav.toggle_state}
-
-        ]
-        self.get_entities_data('', '')
-
-
     def go_to_root(self):
         self.entities_path = ''
         self.get_entities_data('','')
@@ -109,7 +88,6 @@ class EntitiesScreen(AppScreenTemplate):
     def go_up_level(self):
 
         self.get_entities_data('up level','')
-
 
     def get_entities_data(self, entities_key, callback):
         base_url = App.get_running_app().config.get('Server', 'url')
@@ -134,7 +112,7 @@ class EntitiesScreen(AppScreenTemplate):
             url_path = "%s/%s" % (self.entities_path, entities_key)
         self.up_level = self.entities_path
         self.entities_path = url_path
-        self.ids.entities_location.title = unquote(url_path)
+        self.ids.entities_location.text = unquote(url_path)
         entities_list = "%s/entities%s?api_key=%s" % (base_url, url_path, api_key)
 
         req = CustomUrlRequest(entities_list,
@@ -157,9 +135,8 @@ class EntitiesScreen(AppScreenTemplate):
             else:
                 key_name = key
         data = results[key_name]
-
-        scroll = ScrollView(size_hint=(.95, .85), do_scroll_y=True, do_scroll_x=False,
-                            pos_hint={'x': .05, 'y': .01}, id='entities_scroll')
+        self.letter_bnt_stack.clear_widgets()
+        scroll = self.m_scroll
         scroll.clear_widgets()
         grid = GridLayout(cols=1, size_hint=(1, None), spacing=10, padding=10)
         grid.clear_widgets()
@@ -170,45 +147,59 @@ class EntitiesScreen(AppScreenTemplate):
                     if entitie['name'] != 'comics':
                         fixed_entite_name = entitie['name'].replace('/', '%2F')
                         entitie_text = '%s(%s)' % (entitie['name'].title(), str(entitie['count']))
-                        page_button = EntitiesItemButton(text=entitie_text, height=(bnt_size), size_hint=(.9, None))
+                        page_button = EntitieItemButton(text=entitie_text, height=(bnt_size), size_hint=(.9, None))
                         page_button.bind(on_release=partial(self.get_entities_data, entitie['name']))
+                        page_button.bind(on_release=partial(page_button.anti_click))
                         grid.add_widget(page_button)
                     else:
                         entitie_text = 'Click to open %s in Collection Screen(%s)' % (
                         entitie['name'].title(), str(entitie['count']))
-                        page_button = EntitiesItemButton(text=entitie_text, height=(bnt_size), size_hint=(.9, None))
+                        page_button = EntitieItemButton(text=entitie_text, height=(bnt_size), size_hint=(.9, None))
                         page_button.bind(on_release=partial(self.go_comic_collection_screen, self.entities_path))
+                        page_button.bind(on_release=partial(page_button.anti_click))
                         grid.add_widget(page_button)
         elif key_name == 'volumes':
             for item in data:
                 if item == None:data.remove(item)
             if len(data) > 1:
                 for item in data[0:self.number_per_page]:
-                    page_button = EntitiesItemButton(text=str(item), height=(bnt_size), size_hint=(.9, None))
+                    page_button = EntitieItemButton(text=str(item), height=(bnt_size), size_hint=(.9, None))
                     page_button.bind(on_release=partial(self.get_entities_data, str(item)))
+                    page_button.bind(on_release=partial(page_button.anti_click))
                     grid.add_widget(page_button)
             else:
-                page_button = EntitiesItemButton(text=str(data[0]), height=(bnt_size), size_hint=(.9, None))
+                page_button = EntitieItemButton(text=str(data[0]), height=(bnt_size), size_hint=(.9, None))
                 page_button.bind(on_release=partial(self.get_entities_data, str(data[0])))
+                page_button.bind(on_release=partial(page_button.anti_click))
                 grid.add_widget(page_button)
         else:
             for item in data:
                 if item == None:data.remove(item)
             if len(data) > 1:
                 for letter, words in groupby(sorted(data[0:self.number_per_page]), key=itemgetter(0)):
-                    letter_button = Label(text=str(letter), height=(1), size_hint=(None, None), opacity=1, id=letter)
-                    grid.add_widget(letter_button)
+                    letter_button = LetterButtons(id=letter,text=letter.title())
+                    letter_label = Label(text=str(letter), height=(1), size_hint=(None, None), opacity=1, id=letter)
+                    grid.add_widget(letter_label)
+                    self.letter_bnt_stack.add_widget(letter_button)
+                    letter_button.bind(on_press=letter_button.click)
                     for word in words:
-                        word = word.encode('utf8')
-                        page_button = EntitiesItemButton(text=str(word),height=(bnt_size), size_hint=(.9, None))
-                        page_button.bind(on_release=partial(self.get_entities_data, word))
-                        grid.add_widget(page_button)
+                            word = word.encode('utf8')
+                            page_button = EntitieItemButton(text=str(word),height=(bnt_size), size_hint=(.9, None))
+                            if not '/' in word:
+                                page_button.bind(on_release=partial(self.get_entities_data, word))
+                                page_button.bind(on_release=partial(page_button.anti_click))
+
+                            else:
+                                page_button.bind(on_release=self.entities_name_error)
+                                page_button.bind(on_release=partial(page_button.anti_click))
+                            grid.add_widget(page_button)
             else:
-                page_button = EntitiesItemButton(text=str(data[0]), height=(bnt_size), size_hint=(.9, None))
+                page_button = EntitieItemButton(text=str(data[0]), height=(bnt_size), size_hint=(.9, None))
                 page_button.bind(on_release=partial(self.get_entities_data, str(data[0])))
+                page_button.bind(on_release=partial(page_button.anti_click))
                 grid.add_widget(page_button)
         scroll.add_widget(grid)
-        self.add_widget(scroll)
+
 
 
         #
@@ -229,17 +220,50 @@ class EntitiesScreen(AppScreenTemplate):
         #         dict['secondary_text'] = ''
         #         self.entities_data.append(dict)
 
+    def entities_name_error(self,*args):
+        self.app.dialog_error('This has a / in name so browsing disabled','Naming Error', (.5, .3), 'Subhead')
+        return
+
     def on_leave(self):
         app = App.get_running_app()
         app.manager.last_screen = self
 
-
 class EntitieScreenNavigationDrawer(AppNavDrawer):
     pass
 
+class EntitieItemButton(ThemeBehaviour,RectangularRippleBehavior,Button):
+    def __init__(self, **kwargs):
+        super(EntitieItemButton, self).__init__(**kwargs)
+        self.background_normal= ''
+        self.background_color = self._theme_cls.primary_color
+        self.background_color_down = self._theme_cls.primary_dark
+        self.background_color_disabled = self._theme_cls.disabled_bg_color()
 
-class EntitiesItemButton(RectangularRippleBehavior, Button):
-    series_name = StringProperty()
+    def enable_me(self,instance):
+        Logger.debug('enabling %s'%self.id)
+        self.disabled = False
 
-    def load_series(self):
-        print self.series_name
+    def anti_click(self,*args):
+        self.disabled = True
+        Clock.schedule_once(self.enable_me, .5)
+
+
+class LetterButtons(ThemeBehaviour,RectangularRippleBehavior,Button):
+    def __init__(self, **kwargs):
+        super(LetterButtons, self).__init__(**kwargs)
+        self.background_normal= ''
+        self.background_down = ''
+        self.background_color = self._theme_cls.primary_color
+        self.background_color_down = self._theme_cls.primary_dark
+
+        self.size_hint = None, None
+        self.size =dp(20), dp(36)
+
+    def click(self,btn):
+        app = App.get_running_app()
+        # app.root.current = 'comic_book_screen'
+        entities_screen = app.manager.get_screen('entities_screen')
+        scroller = entities_screen.m_scroll
+        for child in entities_screen.walk():
+            if child.id == btn.id:
+                scroller.scroll_to(child,padding=10, animate=True)

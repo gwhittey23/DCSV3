@@ -213,26 +213,41 @@ FloatLayout:
                 text: 'label1'
             Button:
                 text: 'test2'
+                MenuSpawner:
+                    timeout: .8
+                    menu_args:
+                        dict(
+                        creation_direction=-1,
+                        radius=30,
+                        creation_timeout=.4,
+                        choices=[
+                        dict(text='submenu 1', index=1, callback=app.callback1),
+                        dict(text='action 1', index=2, callback=app.callback2),
+                        dict(text='action 2', index=3, callback=app.callback3),
+                        dict(text='submenu 2', index=4, callback=app.callback4),
+                        dict(text='action 3', index=5, callback=app.callback5),
+                        ])
             Label:
                 text: 'label2'
             Button:
                 text: 'test3'
+                MenuSpawner:
+                    timeout: .8
+                    menu_args:
+                        dict(
+                        creation_direction=-1,
+                        radius=30,
+                        creation_timeout=.4,
+                        choices=[
+                        dict(text='submenu 1', index=1, callback=app.callback1),
+                        dict(text='action 1', index=2, callback=app.callback2),
+                        dict(text='action 2', index=3, callback=app.callback3),
+                        dict(text='submenu 2', index=4, callback=app.callback4),
+                        dict(text='action 3', index=5, callback=app.callback5),
+                        ])
             Label:
                 text: 'label3'
-    MenuSpawner:
-        timeout: .8
-        menu_args:
-            dict(
-            creation_direction=-1,
-            radius=30,
-            creation_timeout=.4,
-            choices=[
-            dict(text='submenu 1', index=1, callback=app.callback1),
-            dict(text='action 1', index=2, callback=app.callback2),
-            dict(text='action 2', index=3, callback=app.callback3),
-            dict(text='submenu 2', index=4, callback=app.callback4),
-            dict(text='action 3', index=5, callback=app.callback5),
-            ])
+
 '''
 
 

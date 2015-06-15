@@ -20,24 +20,27 @@ from kivy.loader import Loader
 from kivy.core.window import Window
 from kivy.graphics.transformation import Matrix
 from kivy.uix.label import Label
-from gui.widgets.custom_widgets import AppScreenTemplate
+from gui.widgets.custom_widgets import  CommonComicsCoverInnerGrid,\
+    CommonComicsOuterGrid,CommonComicsCoverLabel,CommonComicsCoverImage,CommonComicsScroll
 from gui.widgets.custom_effects import RectangularRippleBehavior
+
 from gui.theme_engine.dialog import Dialog
 from data.settingsjson import settings_json_screen_tap_control
 
 
-class ComicBookScreen(AppScreenTemplate):
+class ComicBookScreen(Screen):
     scroller = ObjectProperty()
     top_pop = ObjectProperty()
     def __init__(self, **kwargs):
         self.just_loaded = False
+        self.app = App.get_running_app()
         super(ComicBookScreen, self).__init__(**kwargs)
 
     def on_leave(self):
         app = App.get_running_app()
         app.manager.last_screen = self
 
-    def load_comic_book(self,comic_obj,comics_collection):
+    def load_comic_book(self,comic_obj,comics_collection = ''):
         if self.just_loaded:
             return
 
@@ -167,22 +170,27 @@ class ComicBookScreen(AppScreenTemplate):
     def comicscreen_open_collection_popup(self):
         self.top_pop.open()
 
-    def build_top_nav(self):
+    def build_top_nav(self,collection_sort=''):
+
         scroll = CommonComicsScroll(id='page_thumb_scroll')
         self.top_pop = Popup(id='page_pop',title='Pages', content=scroll, pos_hint ={'y': .724},size_hint = (1,.379))
         grid = CommonComicsOuterGrid(id='outtergrd')
         grid.bind(minimum_width=grid.setter('width'))
-        for comic in self.comics_collection.do_sort_issue:
+        if collection_sort == 'issue':
+            comic_collection_sort = self.comics_collection.do_sort_issue
+        else:
+            comic_collection_sort = self.comics_collection.comics
+        for comic in comic_collection_sort:
             comic_name = '%s #%s'%(str(comic.series),str(comic.issue))
-            src_thumb = comic.thumb_url
-            inner_grid = CommonComicsInnerGrid(id='inner_grid'+str(comic.comic_id_number))
-            comic_thumb = CommonComicsPageImage(source=src_thumb,id=str(comic.comic_id_number))
+            src_thumb = comic.get_cover()
+            inner_grid = CommonComicsCoverInnerGrid(id='inner_grid'+str(comic.comic_id_number))
+            comic_thumb = CommonComicsCoverImage(source=src_thumb,id=str(comic.comic_id_number))
             comic_thumb.comic = comic
             comic_thumb.comics_collection = self.comics_collection
             inner_grid.add_widget(comic_thumb)
             comic_thumb.bind(on_release=self.top_pop.dismiss)
-            comic_thumb.bind(on_release=comic_thumb.click)
-            smbutton = CommonComicsPagebntlbl(text=comic_name)
+            comic_thumb.bind(on_release=comic_thumb.open_collection)
+            smbutton = CommonComicsCoverLabel(text=comic_name)
             inner_grid.add_widget(smbutton)
             grid.add_widget(inner_grid)
         scroll.add_widget(grid)
@@ -196,15 +204,15 @@ class ComicBookScreen(AppScreenTemplate):
         base_url = App.get_running_app().config.get('Server', 'url')
         prev_comic = self.prev_comic
         comic_name = '%s #%s'%(str(prev_comic.series),str(prev_comic.issue))
-        src_thumb = prev_comic.thumb_url
-        inner_grid = CommonComicsInnerGrid(id='inner_grid'+str(prev_comic.comic_id_number))
-        comic_thumb = CommonComicsPageImage(source=self.prev_comic.thumb_url,id=str(prev_comic.comic_id_number),nocache=True)
+        src_thumb = self.prev_comic.get_cover()
+        inner_grid = CommonComicsCoverInnerGrid(id='inner_grid'+str(prev_comic.comic_id_number))
+        comic_thumb = CommonComicsCoverImage(source=src_thumb,id=str(prev_comic.comic_id_number),nocache=True)
 
         comic_thumb.comic = self.prev_comic
         comic_thumb.comics_collection = self.comics_collection
         inner_grid.add_widget(comic_thumb)
 
-        smbutton = CommonComicsPagebntlbl(text=comic_name)
+        smbutton = CommonComicsCoverLabel(text=comic_name)
         inner_grid.add_widget(smbutton)
         content = inner_grid
 
@@ -224,7 +232,7 @@ class ComicBookScreen(AppScreenTemplate):
             if index == 0:
                 return
             else:
-                comic_thumb.bind(on_release=comic_thumb.click)
+                comic_thumb.bind(on_release=comic_thumb.open_collection)
 
     def build_next_comic_dialog(self):
         ''' Make popup showing cover for next comic'''
@@ -236,15 +244,15 @@ class ComicBookScreen(AppScreenTemplate):
         comic_obj = self.comic_obj
         index = comics_collection.index(comic_obj) # first index where x appears
         comic_name = '%s #%s'%(str(comic.series),str(comic.issue))
-        src_thumb = comic.thumb_url
-        inner_grid = CommonComicsInnerGrid(id='inner_grid'+str(comic.comic_id_number))
-        comic_thumb = CommonComicsPageImage(source=self.next_comic.thumb_url,id=str(comic.comic_id_number),nocache=True)
+        src_thumb = self.next_comic.get_cover()
+        inner_grid = CommonComicsCoverInnerGrid(id='inner_grid'+str(comic.comic_id_number))
+        comic_thumb = CommonComicsCoverImage(source=src_thumb,id=str(comic.comic_id_number),nocache=True)
 
         comic_thumb.comic = self.next_comic
         comic_thumb.comics_collection = self.comics_collection
         inner_grid.add_widget(comic_thumb)
 
-        smbutton = CommonComicsPagebntlbl(text=comic_name)
+        smbutton = CommonComicsCoverLabel(text=comic_name)
         inner_grid.add_widget(smbutton)
         content = inner_grid
         if index >= len(comics_collection)-1:
@@ -262,7 +270,7 @@ class ComicBookScreen(AppScreenTemplate):
         if index >= len(comics_collection)-1:
             return
         else:
-            comic_thumb.bind(on_release=comic_thumb.click)
+            comic_thumb.bind(on_release=comic_thumb.open_collection)
 
     def open_next_dialog(self):
          self.next_dialog.open()
@@ -424,37 +432,7 @@ class ThumbPopPageImage(RectangularRippleBehavior,ButtonBehavior,AsyncImage):
 #<<<<<<<<<<
 
 #<<<<Following are class for Next list>>>>>>>>>
-class CommonComicsScroll(ScrollView):
-    pass
 
-class CommonComicsOuterGrid(GridLayout):
-    pass
-
-class ComicColScroll(ScrollView):
-    pass
-
-class ComicColOuterGrid(GridLayout):
-    pass
-
-class CommonComicsPagebntlbl(Label):
-    pass
-
-class CommonComicsInnerGrid(GridLayout):
-    pass
-
-class CommonComicsPageImage(RectangularRippleBehavior,ButtonBehavior,AsyncImage):
-    comic = ObjectProperty()
-    comics_collection = ObjectProperty()
-
-    def enable_me(self,instance):
-        self.disabled = False
-
-    def click(self,instance):
-        self.disabled = True
-        app = App.get_running_app()
-        comic_screen = app.root.get_screen('comic_book_screen')
-        comic_screen.load_comic_book(self.comic,self.comics_collection)
-        Clock.schedule_once(self.enable_me, .5)
 
 #Button for screen tapping control
 

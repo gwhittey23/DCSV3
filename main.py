@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-__version__ = '1.0000000131'
+__version__ = '1.0000000132'
 
 DEBUG = True
 import kivy
 kivy.require('1.9.1')
 if DEBUG:
     from kivy.config import Config
-    print 'setting windows size'
-    Config.set('graphics', 'width', '600')
-    Config.set('graphics', 'height', '1024')
+
 from kivy.app import App
 from data.settingsjson   import settings_json_server,settings_json_dispaly,settings_json_screen_tap_control
 
@@ -16,11 +14,13 @@ from kivy.uix.screenmanager import ScreenManager
 #from csvdb.csvdroid_db import build_db
 from gui.theme_engine.dialog import Dialog
 from kivy.core.window import Window
-from kivy.modules import keybinding
+from kivy.modules import keybinding, webdebugger,screen
+
 from gui.theme_engine.theme import ThemeManager
 from gui.screens.comic_book_screen import ComicBookScreen
 from gui.screens.home_screen import HomeScreen
 from gui.screens.entities_screen import EntitiesScreen
+from gui.screens.favorites_screen import FavoritesScreen
 from gui.screens.comic_collection_screen import ComicCollectionScreen
 from gui.theme_engine.list import MaterialList
 from gui.theme_engine.textfields import SingleLineTextField
@@ -30,13 +30,13 @@ from kivy.uix.settings import SettingsWithSidebar,SettingsWithTabbedPanel
 import gui.theme_engine
 import os
 from kivy.app import App
-from data.comic_data import build_db
+
 from kivy.properties import ListProperty, ObjectProperty,StringProperty
 from gui.theme_engine.theme import ThemeBehaviour, ThemeManager
 from kivy.metrics import dp
 from gui.theme_engine.label import MaterialLabel
-import cProfile
-import pstats
+# import cProfile
+# import pstats
 
 class ErrorLabel(MaterialLabel):
     def __init__(self, **kwargs):
@@ -64,34 +64,40 @@ class MainApp(App):
 
     def __init__(self, **kwargs):
         super(MainApp, self).__init__(**kwargs)
-        self.theme_cls.primary_palette = 'Grey'
-        self.theme_cls.accent_palette = 'Teal'
+        ''' ['Pink', 'Blue', 'Indigo', 'BlueGrey', 'Brown', 'LightBlue', 'Purple', 'Grey', 'Yellow',
+            'LightGreen', 'DeepOrange', 'Green', 'Red', 'Teal', 'Orange', 'Cyan', 'Amber', 'DeepPurple', 'Lime']
+'''
+        self.theme_cls.primary_palette = 'DeepOrange'
+        self.theme_cls.accent_palette = 'Green'
         self.theme_cls.theme_style = 'Dark'
         self.comic_loaded = 'no'
     def on_start(self):
-        self.profile = cProfile.Profile()
-        self.profile.enable()
 
+        # self.profile = cProfile.Profile()
+        # self.profile.enable()
+        pass
     def on_stop(self):
-        self.profile.disable()
-        self.profile.dump_stats('main.profile')
-        p = pstats.Stats('main.profile')
-        print ';ok dumped'
-        p.strip_dirs().sort_stats(-1).dump_stats('1')
-        p.sort_stats('time').print_stats(100)
+        # self.profile.disable()
+        # self.profile.dump_stats('main.profile')
+        # p = pstats.Stats('main.profile')
+        # print ';ok dumped'
+        # p.strip_dirs().sort_stats(-1).dump_stats('1')
+        # p.sort_stats('time').print_stats(100)
+        pass
 
     def test_me(self):
         print 'main app test me'
 
     def build(self):
-
         self.settings_cls = SettingsWithSidebar
         if DEBUG == False :self.use_kivy_settings = False
         self.manager = AppScreenManager()
-        self.manager.get_screen('home_screen').build_home_screen()
-        self.manager.get_screen('entities_screen').build_entities_screen()
-        self.manager.get_screen('comic_collection_screen').build_comic_collection_screen()
+        self.manager.get_screen('home_screen').build_nav()
+        self.manager.get_screen('entities_screen').build_nav()
+        self.manager.get_screen('comic_collection_screen').build_nav()
+        self.manager.get_screen('favorites_screen').build_favorites_screen()
         keybinding.start(Window, App)
+        webdebugger.start(Window, App)
         dbl_tap_time = self.config.get('Screen Tap Control','dbl_tap_time')
         Config.set('postproc', 'double_tap_time', dbl_tap_time)
         return self.manager
@@ -126,9 +132,6 @@ class MainApp(App):
             'middle_center':    'Open Collection Browser',
             'dbl_tap_time':      250
             })
-        if  os.path.isfile('data/cachedb.sqlite') == False:
-            build_db()
-
 
     def build_settings(self, settings):
         settings.add_json_panel('Server Settings',
@@ -170,5 +173,12 @@ class MainApp(App):
                              auto_dismiss=True)
         self.error_dialog.add_action_button("Dismiss", action=lambda *x: self.error_dialog.dismiss())
         self.error_dialog.open()
+
+
+
+
+
+
+
 if __name__ == '__main__':
     MainApp().run()

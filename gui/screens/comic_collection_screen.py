@@ -1,46 +1,27 @@
 # -*- coding: utf-8 -*-
 from gui.widgets.custom_widgets import AppScreenTemplate,AppNavDrawer
 from kivy.properties import ObjectProperty
-from gui.widgets.custom_widgets import CommonComicsInnerGrid,\
-    CommonComicsOuterGrid,CommonComicsPagebntlbl,CommonComicsPageImage,CommonComicsScroll
+from gui.widgets.custom_widgets import CommonComicsCoverInnerGrid,\
+    CommonComicsOuterGrid,CommonComicsCoverLabel,CommonComicsCoverImage,CommonComicsScroll,CommonComicsBubbleMenu
 from data.comic_data import ComicCollection, ComicBook
 from comicstream.url_get import CustomUrlRequest
 from kivy.logger import Logger
 from operator import itemgetter, attrgetter, methodcaller
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.gridlayout import GridLayout
+from gui.widgets.circle_menu import MenuSpawner
 import gc
+
+
+
+
 class ComicCollectionScreen(AppScreenTemplate):
     comic_collection = ObjectProperty()
     def __init__(self, **kw):
         super(ComicCollectionScreen, self).__init__(**kw)
 
-    def go_comic_screen(self):
-        if self.app.comic_loaded == 'yes':
-            self.app.manager.current = 'comic_book_screen'
-        else:
-            self.app.dialog_error('No Comic Loaded','Comic Screen Error')
 
-    def build_comic_collection_screen(self,):
 
-        self.toolbar.add_action_button("md-home", lambda *x:self.go_home())
-        self.toolbar.add_action_button("md-my-library-books",lambda *x: self.go_comic_screen() )
-        self.toolbar.add_action_button("md-settings",lambda *x: self.open_settings())
-        self.tile_icon_data = [
-                                {'icon': '', 'text': '',
-                                'secondary_text': '',
-                                'callback': ''},
-                                {'icon': 'md-event', 'text': 'Event',
-                                'secondary_text': "An event button",
-                                'callback':''},
-                                {'icon':  'md-search', 'text': 'Search',
-                                'secondary_text': "A search button",
-                                'callback': self.nav.toggle_state},
-                                {'icon': 'md-thumb-up', 'text': 'Like',
-                                'secondary_text': "A like button",
-                                'callback': self.nav.toggle_state}
-
-                               ]
 
 
     def build_collection(self,req, results):
@@ -65,14 +46,14 @@ class ComicCollectionScreen(AppScreenTemplate):
         base_url = self.app.config.get('Server', 'url')
         for comic in self.collection.do_sort_issue:
             comic_name = '%s #%s'%(comic.series,comic.issue)
-            src_thumb = comic.thumb_url
-            inner_grid = CommonComicsInnerGrid(id='inner_grid'+str(comic.comic_id_number))
-            comic_thumb = CommonComicsPageImage(source=src_thumb,id=str(comic.comic_id_number),nocache=True)
+            src_thumb = src_thumb = comic.get_cover()
+            inner_grid = CommonComicsCoverInnerGrid(id='inner_grid'+str(comic.comic_id_number))
+            comic_thumb = CommonComicsCoverImage(source=src_thumb,id=str(comic.comic_id_number),nocache=True)
             comic_thumb.comic = comic
             comic_thumb.comics_collection = self.collection
             inner_grid.add_widget(comic_thumb)
-            comic_thumb.bind(on_release=comic_thumb.click)
-            smbutton = CommonComicsPagebntlbl(text=comic_name)
+            # comic_thumb.bind(on_release=comic_thumb.click)
+            smbutton = CommonComicsCoverLabel(text=comic_name,color=(0,0,0,1))
             inner_grid.add_widget(smbutton)
             grid.add_widget(inner_grid)
         scroll.add_widget(grid)

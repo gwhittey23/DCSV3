@@ -68,20 +68,7 @@
                 text:               "Series List"
                 on_release:         root.do_series()
 
-
-##
-#            RaisedButton:
-#                size_hint:			None, None
-#                size:				dp(130), dp(36)
-#                pos_hint:			{'x': 0.001, 'top': .94}
-#                elevation_normal:	2
-#                theme_style:		'Dark'
-#                disabled:			False
-#                text:               "Series List"
-#                on_release:         app.root.load_comic_shelf_screen('Series')
-
             RelativeLayout:
-#                pos_hint:			{'x': 0.00001, 'y': 0.1}
                 size_hint: 1,.3
                 MaterialLabel:
                     text:				"Most Recent Additions"
@@ -111,66 +98,6 @@
 
 
 
-#<IconTextTile>:
-#	canvas:
-#		Clear
-#		Color:
-#			rgba: self.background_color_disabled if self.disabled else \
-#			(self.background_color_selected if self.is_selected else self.background_color)
-#		Rectangle:
-#			size: self.size
-#			pos: self.pos
-#		Color:
-#			rgba: self.divider_color
-#		Line:
-#			points: self.x + dp(72), self.y, self.x + self.width, self.y
-#			width: 1
-#
-#	anchor_x:			'center'
-#	anchor_y:			'center'
-#	padding:			dp(16), 0
-#
-#	GridLayout:
-#		cols:			2
-#		AnchorLayout:
-#			anchor_x:		'left'
-#			anchor_y:		'center'
-#			size_hint:		None, 1
-#			width:			dp(56)
-#			MaterialLabel:
-#				id: 				icon_label
-#				icon:				root.icon
-#				font_style:			'Icon'
-#				theme_text_color:	'Secondary'
-#				theme_style:		'Custom'
-#				text_color:			root._icon_color
-#				text_size:			self.size
-#				size_hint:			None, None
-#				size:				dp(24), dp(24)
-#
-#		GridLayout:
-#			cols:			1
-#			spacing:		dp(4)
-#			MaterialLabel:
-#				id: primary_label
-#				text:				root.text
-#				font_style:			'Subhead'
-#				theme_text_color:	'Primary'
-#				theme_style:		'Custom'
-#				text_color:			root._text_color if not root.is_selected else root.text_color_selected
-#				text_size:			self.size
-#				halign:				'left'
-#				valign:				'bottom'
-#
-#			MaterialLabel:
-#				id: secondary_label
-#				text:				root.secondary_text
-#				font_style:			'Body1'
-#				theme_text_color:	'Secondary'
-#				theme_style:		root._theme_cls.theme_style
-#				text_size:			self.size
-#				halign:				'left'
-#				valign:				'top'
 #<Widget>:
 #    canvas.after:
 #        Line:

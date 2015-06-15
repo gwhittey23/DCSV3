@@ -15,7 +15,7 @@ class CommonRipple(object):
 	ripple_scale = NumericProperty(None)
 	ripple_duration_in_fast = NumericProperty(.3)
 	# FIXME: These speeds should be calculated based on widget size in dp
-	ripple_duration_in_slow = NumericProperty(2)
+	ripple_duration_in_slow = NumericProperty(1)
 	ripple_duration_out = NumericProperty(.5)
 	ripple_func_in = StringProperty('out_quad')
 	ripple_func_out = StringProperty('out_quad')
