@@ -4,21 +4,18 @@ import inspect
 
 from kivy.properties import ListProperty, ObjectProperty, StringProperty, NumericProperty
 from kivy.app import App
-from kivy.uix.screenmanager import Screen
 from kivy.logger import Logger
 from kivy.uix.gridlayout import GridLayout
+
 #from kivy.uix.scrollview import ScrollView
 from kivy.uix.button import Button
 from kivy.uix.label import Label
 from itertools import groupby
 from operator import itemgetter
 from gui.widgets.custom_widgets import AppNavDrawer, AppScreenTemplate
-from comicstream.url_get import CustomUrlRequest
-from gui.theme_engine.button import RaisedButton
+from tools.url_get import CustomUrlRequest
 from gui.theme_engine.ripplebehavior import RectangularRippleBehavior
-from gui.theme_engine.list import MaterialList
 from gui.theme_engine.theme import ThemeBehaviour
-from gui.theme_engine.layouts import BackgroundColorCapableWidget
 from kivy.metrics import dp
 from kivy.clock import Clock
 from functools import partial
@@ -56,7 +53,7 @@ class EntitiesScreen(AppScreenTemplate):
 
     def got_error(self, req, error):
         error_title = 'Server Error'
-        self.app.dialog_error(error, error_title)
+        self.app._dialog(error, error_title)
         Logger.critical('ERROR in %s %s' % (req, error))
 
     def go_comic_collection_screen(self, comic_collection_path,callback):
@@ -93,7 +90,7 @@ class EntitiesScreen(AppScreenTemplate):
         base_url = App.get_running_app().config.get('Server', 'url')
         api_key = App.get_running_app().config.get('Server', 'api_key')
         if '/' in entities_key:
-            self.app.dialog_error(
+            self.app._dialog(
                                 'Please use search for %s name due to the "/" \nin the name as server is unable to process this ' %
                                 (entities_key),'%s Naming Error' % (entities_key), (.9, .3), 'Subhead')
             return
@@ -221,7 +218,7 @@ class EntitiesScreen(AppScreenTemplate):
         #         self.entities_data.append(dict)
 
     def entities_name_error(self,*args):
-        self.app.dialog_error('This has a / in name so browsing disabled','Naming Error', (.5, .3), 'Subhead')
+        self.app._dialog('This has a / in name so browsing disabled','Naming Error', (.5, .3), 'Subhead')
         return
 
     def on_leave(self):

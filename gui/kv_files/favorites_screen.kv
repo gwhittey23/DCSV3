@@ -3,8 +3,7 @@
     toolbar: 		_toolbar
     nav: 			_nav
     main:           _main
-#    fav_item:       _fav_item
-#    fav_folder:     _fav_folder
+    scroll:         _favscroll
     FavoritesScreenNavigationDrawer:
         id: 				_nav
         side:				'left'
@@ -33,7 +32,12 @@
                 icons_theme_style:	'Dark'
                 elevation:			6
                 pos_hint:			{'x': 0, 'top': 1}
-
+            ScrollView:
+                id:                 _favscroll
+                size_hint:          (1,.6)
+                do_scroll_y:        True
+                do_scroll_x:        False
+                pos_hint:           {'x':.01,'y':.01}
 
 
 <FavroitesInnerGrid>:
@@ -42,6 +46,8 @@
     size_hint: (None,None)
     size: ('97.5dp','150dp')
     spacing: 5
+
+
 <FavroitesCoverImage@Widget>:
     allow_stretch: False
     size: ('97.5dp','150dp')
@@ -82,25 +88,38 @@
         text: 'Test'
         halign: 'center'
         size: '16dp', '16dp'
-        pos: root.center_x - self.width / 2, root.y + dp(16)
+        pos: root.center_x - self.width / 2, root.y - self.height
 
-#
-#<FavortieItem@GridLayout>:
-#    rows:2
-#    cols:1
-#    padding: (0,0,0,30)
-#    size: (65,100)
-#    AsyncImage:
-#        source:'http://192.168.0.3:32500/comic/106/thumbnail#.jpg'
-#        allow_stretch: True
-#        size: (65,100)
-#        size_hint: (None, None)
-#    Label:
-#        text: 'Favorites Comic'
-#        halign: 'center'
-#        valign: 'bottom'
-#        size: (65,100)
-#
+<FavoritesBubbleMenu>:
+    orientation: 'vertical'
+    background_image: 'atlas://data/images/defaulttheme/button_pressed'
+
+    background_color: .2, .9, 1, 1
+    size_hint: (None, None)
+    size: (dp(100),dp(154))
+
+    CommonComicsBubbleButton:
+        text: 'Open Comic'
+        on_release:root.open_comic()
+    CommonComicsBubbleButton:
+        text: 'Open Collection'
+        on_release:root.open_collection()
+    CommonComicsBubbleButton:
+        text: 'Add to Favorites'
+        on_release:root.add_fav()
+    CommonComicsBubbleButton:
+        text: 'Add to a Collection'
+        on_release:root.open_comic()
+    CommonComicsBubbleButton:
+        text: 'Close Menu'
+        on_release:root.close_me()
+
+
+<FavoritesBubbleButton>:
+    font_size: '10sp'
+    background_color:self.background_color_disabled if self.disabled else (self.background_color if self.state == 'normal' else self.background_color_down)
+    background_down: ''
+    background_normal: ''
 
 #<Widget>:
 #    canvas.after:

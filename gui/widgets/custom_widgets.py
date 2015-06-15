@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from kivy.uix.togglebutton import ToggleButton
 from gui.theme_engine.theme import ThemeBehaviour
 from gui.navigationdrawer import NavigationDrawer
 from kivy.app import App
@@ -15,7 +16,7 @@ from kivy.uix.screenmanager import Screen
 from kivy.logger import Logger
 from gui.widgets.circle_menu import ModernMenu
 from functools import partial
-from kivy.uix.togglebutton import ToggleButton
+from data.database import FavItem,DataManager
 from data.comic_data import ComicCollection
 import os.path
 
@@ -43,7 +44,7 @@ class AppScreenTemplate(Screen):
         self.toolbar.nav_button = ["md-keyboard-backspace",self.load_last_screen]
         self.toolbar.add_action_button("md-home", lambda *x:self.go_home())
         self.toolbar.add_action_button("md-my-library-books",lambda *x: self.go_comic_screen() )
-        self.toolbar.add_action_button("md-settings",lambda *x: self.open_settings())
+        self.toolbar.add_action_button("md-settings",lambda *x: self.app.open_settings())
         self.tile_icon_data = [
                                 {'icon': '', 'text': '',
                                 'secondary_text': '',
@@ -81,7 +82,7 @@ class AppScreenTemplate(Screen):
         if self.app.comic_loaded == 'yes':
             self.app.manager.current = 'comic_book_screen'
         else:
-            self.app.dialog_error('No Comic Loaded','Comic Screen Error')
+            self.app._dialog('No Comic Loaded','Comic Screen Error')
 
 
     def callback1(self, *args):
@@ -176,9 +177,17 @@ class CommonComicsCoverImage(RectangularRippleBehavior,ButtonBehavior,AsyncImage
         Logger.debug('enabling %s'%self.id)
         self.disabled = False
     def add_fav(self,*args):
-        filename = 'data/img/%s.jpg'%self.comic.comic_id_number
-
-
+        dm = DataManager()
+        dm.create()
+        if self.comic.comic_id_number is not None:
+            comic = self.comic
+            session = dm.Session()
+            comic_name = '%s #%s'%(comic.series,str(comic.issue))
+            obj = FavItem(comic_id_number=comic.comic_id_number,
+                          name=comic_name
+                          )
+            session.add(obj)
+            session.commit()
     def open_comic(self,*args):
         self.disabled = True
         app = App.get_running_app()
@@ -197,7 +206,6 @@ class CommonComicsCoverImage(RectangularRippleBehavior,ButtonBehavior,AsyncImage
         comic_screen.load_comic_book(self.comic,self.comics_collection)
         Clock.schedule_once(self.enable_me, .5)
 
-
 class CommonComicsBubbleMenu(ThemeBehaviour,Bubble):
     def __init__(self, **kwargs):
         super(CommonComicsBubbleMenu, self).__init__(**kwargs)
@@ -206,16 +214,17 @@ class CommonComicsBubbleMenu(ThemeBehaviour,Bubble):
         self.background_color = self._theme_cls.primary_color
         self.background_color_down = self._theme_cls.primary_dark
 
-
     def add_fav(self):
         x = self.parent
         self.parent.comic_bubble_menu = ''
         self.parent.remove_widget(self)
         x.add_fav()
+
     def open_collection(self,*args):
         self.parent.open_collection()
         self.parent.comic_bubble_menu = ''
         self.parent.remove_widget(self)
+
     def open_comic(self,*args):
         self.parent.open_comic()
         self.parent.comic_bubble_menu = ''

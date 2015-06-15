@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 import kivy
+from kivy.uix.togglebutton import ToggleButton
+from gui.theme_engine.theme import ThemeBehaviour
+
 from gui.widgets.custom_widgets import AppScreenTemplate,AppNavDrawer
 from kivy.uix.widget import Widget
 from gui.widgets.custom_widgets import CommonComicsCoverInnerGrid,\
@@ -12,18 +15,25 @@ from kivy.lang import Factory
 from kivy.uix.scatterlayout import ScatterLayout,Scatter
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.relativelayout import RelativeLayout
+from functools import partial
 from kivy.properties import StringProperty,ListProperty,ObjectProperty
 from kivy.uix.behaviors import DragBehavior
 from kivy.uix.label import Label
 from kivy.uix.image import AsyncImage,Image
 from kivy.clock import Clock
+from kivy.uix.bubble import Bubble,BubbleButton
+from gui.widgets.custom_effects import RectangularRippleBehavior
+import gc
 import pickle
+
+
+
 class FavoritesScreen(AppScreenTemplate):
     fav_folder_list = ListProperty([])
 
     def on_pre_enter(self, *args):
         super(FavoritesScreen, self).on_pre_enter(*args)
-        self.build_nav()
+        self.build_favorites_screen()
     def on_enter(self, *args):
         pass
         # Clock.schedule_interval(self.update, 1.0/60)
@@ -31,7 +41,7 @@ class FavoritesScreen(AppScreenTemplate):
         if self.app.comic_loaded == 'yes':
             self.app.manager.current = 'comic_book_screen'
         else:
-            self.app.dialog_error('No Comic Loaded','Comic Screen Error')
+            self.app._dialog('No Comic Loaded','Comic Screen Error')
     def update(self,dt):
         pass
         # fav_folder = self.fav_folder
@@ -47,10 +57,12 @@ class FavoritesScreen(AppScreenTemplate):
         Clock.unschedule(self.update)
 
     def build_favorites_screen(self):
-        f = open('comic_collection.pickle', 'r')
+        f = open('comic_collection.pickle2', 'r')
         self.collection = pickle.load(f)
         f.close()
-
+        scroll = self.scroll
+        scroll.clear_widgets()
+        gc.collect()
         fav_folder_list = ()
         grid2 = GridLayout(cols=6, size_hint=(1,.5),spacing=(20,20),padding=10, pos_hint = {'x':.01,'y':.4},id='cover_outgrid')
 
@@ -58,11 +70,9 @@ class FavoritesScreen(AppScreenTemplate):
             fav_folder = FavoritesFolder(id='fav_fodler_%s'%str(i))
             grid2.add_widget(fav_folder)
             self.fav_folder_list.append(fav_folder)
-        self.add_widget(grid2)
-        grid = GridLayout(cols=6, size_hint=(1,.5),spacing=(20,20),padding=10, pos_hint = {'x':.01,'y':.01},id='cover_outgrid')
-        fav_trash=FavoritesTrash()
-        grid.add_widget(fav_trash)
-        # grid.bind(minimum_height=grid.setter('height'))
+        self.main.add_widget(grid2)
+        grid = GridLayout(cols=6, size_hint=(None,None),spacing=(20,20),padding=10, id='cover_outgrid')
+        grid.bind(minimum_height=grid.setter('height'))
         base_url = self.app.config.get('Server', 'url')
         for comic in self.collection.do_sort_issue:
             comic_name = '%s #%s'%(comic.series,comic.issue)
@@ -79,7 +89,7 @@ class FavoritesScreen(AppScreenTemplate):
             inner_grid.add_widget(smbutton)
             grid.add_widget(inner_grid)
 
-        self.add_widget(grid)
+        scroll.add_widget(grid)
 
 
 
@@ -94,30 +104,60 @@ class FavroitesLabel(Label):
 
 class FavroitesInnerGrid(DragBehavior,GridLayout):
     fav_folder_list = ListProperty([])
-    def on_touch_down( self, touch ):
-        if self.collide_point( *touch.pos ):
-            touch.grab( self )
-            return True
+    # def on_touch_down( self, touch ):
+    #     if self.collide_point( *touch.pos ):
+    #         touch.grab( self )
+    #         return True
+    #
+    # def on_touch_up( self, touch ):
+    #     if touch.grab_current is self:
+    #         touch.ungrab( self )
+    #         Clock.unschedule(self.update)
+    #         return True
+    # def update(self,dt):
+    #     for folder in self.fav_folder_list:
+    #
+    #             if self.collide_widget(folder):
+    #                 print 'colldie with %s '%folder.id
+    # def on_touch_move( self, touch ):
+    #     if touch.grab_current is self:
+    #         self.pos = touch.x-self.width/2, touch.y-self.height/2
+    #         Clock.schedule_interval(self.update, 0.25)
 
-    def on_touch_up( self, touch ):
-        if touch.grab_current is self:
-            touch.ungrab( self )
-            Clock.unschedule(self.update)
-            return True
-    def update(self,dt):
-        for folder in self.fav_folder_list:
 
-                if self.collide_widget(folder):
-                    print 'colldie with %s '%folder.id
-    def on_touch_move( self, touch ):
-        if touch.grab_current is self:
-            self.pos = touch.x-self.width/2, touch.y-self.height/2
-            Clock.schedule_interval(self.update, 0.25)
+class FavroitesCoverImage(RectangularRippleBehavior,Image):
+    comic_bubble_menu = ObjectProperty()
+    clock_set = StringProperty()
+    def on_touch_down(self, touch):
+        if self.collide_point(*touch.pos):
+            self.create_clock(touch)
+            if touch.is_double_tap:
+                self.delete_clock(touch)
+                self.open_collection()
+        return super(FavroitesCoverImage, self).on_touch_down(touch)
 
+    def on_touch_up(self, touch):
+        if self.collide_point(*touch.pos):
+            self.delete_clock(touch)
+            self.clock_set = 'no'
+        return super(FavroitesCoverImage, self).on_touch_up(touch)
 
+    def show_bubble(self, touch, dt):
+        if dt:self.clock_set = 'no'
+        if not self.comic_bubble_menu:
+            self.comic_bubble_menu = comic_bubble_menu = FavoritesBubbleMenu(pos=self.pos)
+            self.add_widget(comic_bubble_menu)
 
-class FavroitesCoverImage(DragBehavior,Image):
-    pass
+    def create_clock(self,touch):
+        callback = partial(self.show_bubble, touch)
+        Clock.schedule_once(callback, 1)
+        self.clock_set = 'yes'
+        touch.ud['event'] = callback
+
+    def delete_clock(self,touch):
+        if self.clock_set == 'yes':
+            Clock.unschedule(touch.ud['event'])
+            self.clock_set = 'no'
 
 class FavoritesTrash(Widget):
     pass
@@ -143,7 +183,36 @@ class FavoritesFolder(Widget):
         if touch.grab_current is self:
             self.pos = touch.x-self.width/2, touch.y-self.height/2
             # Clock.schedule_interval(self.update, 0.25)
+class FavoritesBubbleMenu(ThemeBehaviour,Bubble):
+    def __init__(self, **kwargs):
+        super(FavoritesBubbleMenu, self).__init__(**kwargs)
+        self.background_normal= ''
+        self.background_down = ''
+        self.background_color = self._theme_cls.primary_color
+        self.background_color_down = self._theme_cls.primary_dark
+    def add_fav(self):
+        x = self.parent
+        self.parent.comic_bubble_menu = ''
+        self.parent.remove_widget(self)
+        x.add_fav()
+    def open_collection(self,*args):
+        self.parent.open_collection()
+        self.parent.comic_bubble_menu = ''
+        self.parent.remove_widget(self)
+    def open_comic(self,*args):
+        self.parent.open_comic()
+        self.parent.comic_bubble_menu = ''
+        self.parent.remove_widget(self)
 
-DEFAULT_THEME = 'atlas://data/images/defaulttheme/'
-FILE_ICON = DEFAULT_THEME + 'filechooser_file'
-FOLDER_ICON = DEFAULT_THEME + 'filechooser_folder'
+    def close_me(self,*args):
+        self.parent.comic_bubble_menu = ''
+        self.parent.remove_widget(self)
+
+class FavoritesBubbleButton(ThemeBehaviour,ToggleButton):
+    def __init__(self, **kwargs):
+        super(FavoritesBubbleButton, self).__init__(**kwargs)
+        self.background_normal= ''
+        self.background_down = ''
+        self.background_color = self._theme_cls.primary_color
+        self.background_color_down = self._theme_cls.primary_dark
+        self.background_color_disabled = self._theme_cls.primary_dark

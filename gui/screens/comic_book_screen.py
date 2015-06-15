@@ -19,13 +19,12 @@ from kivy.metrics import dp
 from kivy.loader import Loader
 from kivy.core.window import Window
 from kivy.graphics.transformation import Matrix
-from kivy.uix.label import Label
+
 from gui.widgets.custom_widgets import  CommonComicsCoverInnerGrid,\
     CommonComicsOuterGrid,CommonComicsCoverLabel,CommonComicsCoverImage,CommonComicsScroll
 from gui.widgets.custom_effects import RectangularRippleBehavior
-
 from gui.theme_engine.dialog import Dialog
-from data.settingsjson import settings_json_screen_tap_control
+from settings.settingsjson import settings_json_screen_tap_control
 
 
 class ComicBookScreen(Screen):
@@ -69,6 +68,15 @@ class ComicBookScreen(Screen):
         number_pages = comic_obj.page_count
         base_url = App.get_running_app().config.get('Server', 'url')
         api_key = App.get_running_app().config.get('Server', 'api_key')
+        strech_image = App.get_running_app().config.get('Display', 'stretch_image')
+        if strech_image == '1':
+            s_allow_stretch=True
+            s_keep_ratio=False
+        else:
+            s_allow_stretch=False
+            s_keep_ratio=True
+
+
         max_height = App.get_running_app().config.get('Server', 'max_height')
         scroll = ScrollView( size_hint=(1,1), do_scroll_x=True, do_scroll_y=False,id='page_thumb_scroll')
         self.page_nav_popup = Popup(id='page_nav_popup',title='Pages', content=scroll, pos_hint ={'y': .0001},size_hint = (1,.3))
@@ -80,8 +88,7 @@ class ComicBookScreen(Screen):
             comic_page_scatter = ComicBookPageScatter(id='comic_scatter'+str(i))
             src_full = "%s/comic/%d/page/%d?api_key=%s&max_height=%d#.jpg" % (base_url, comic_obj.comic_id_number, i,
                                                                               api_key, int(max_height))
-
-            comic_page_image = ComicBookPageImage(source=src_full,id='pi_'+str(i),nocache=True)
+            comic_page_image = ComicBookPageImage(source=src_full,id='pi_'+str(i),nocache=True,allow_stretch=s_allow_stretch,keep_ratio=s_keep_ratio)
             comic_page_scatter.add_widget(comic_page_image)
             comic_book_carousel.add_widget(comic_page_scatter)
             #Let's make the thumbs for popup
@@ -355,8 +362,15 @@ class ComicBookPageImage(AsyncImage):
             carousel.remove_widget(scatter)
 
         def _add_parts():
-            part_1 = ComicBookPageImage(_index=var_i,id='pi_'+str(var_i)+'b')
-            part_2 = ComicBookPageImage(_index=var_i+1,id='pi_'+str(var_i)+'b')
+            strech_image = App.get_running_app().config.get('Display', 'stretch_image')
+            if strech_image == '1':
+                s_allow_stretch=True
+                s_keep_ratio=False
+            else:
+                s_allow_stretch=False
+                s_keep_ratio=True
+            part_1 = ComicBookPageImage(_index=var_i,id='pi_'+str(var_i)+'b',allow_stretch=s_allow_stretch,keep_ratio=s_keep_ratio)
+            part_2 = ComicBookPageImage(_index=var_i+1,id='pi_'+str(var_i)+'b',allow_stretch=s_allow_stretch,keep_ratio=s_keep_ratio)
             scatter_1 = ComicBookPageScatter(id='comic_scatter'+str(var_i))
             scatter_2 = ComicBookPageScatter(id='comic_scatter'+str(var_i)+'b')
             part_1.texture = proxyImage.image.texture.get_region(0,0,c_width/2,c_height)

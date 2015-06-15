@@ -7,32 +7,19 @@ kivy.require('1.9.1')
 if DEBUG:
     from kivy.config import Config
 
-from kivy.app import App
-from data.settingsjson   import settings_json_server,settings_json_dispaly,settings_json_screen_tap_control
-
+from settings.settingsjson import settings_json_server,settings_json_dispaly,settings_json_screen_tap_control
 from kivy.uix.screenmanager import ScreenManager
 #from csvdb.csvdroid_db import build_db
 from gui.theme_engine.dialog import Dialog
 from kivy.core.window import Window
-from kivy.modules import keybinding, webdebugger,screen
+from kivy.modules import keybinding, webdebugger
 
-from gui.theme_engine.theme import ThemeManager
-from gui.screens.comic_book_screen import ComicBookScreen
-from gui.screens.home_screen import HomeScreen
-from gui.screens.entities_screen import EntitiesScreen
-from gui.screens.favorites_screen import FavoritesScreen
-from gui.screens.comic_collection_screen import ComicCollectionScreen
-from gui.theme_engine.list import MaterialList
-from gui.theme_engine.textfields import SingleLineTextField
-from gui.theme_engine.toolbar import Toolbar
-from kivy.uix.settings import SettingsWithSidebar,SettingsWithTabbedPanel
+from kivy.uix.settings import SettingsWithSidebar
 # from memory_profiler import profile
-import gui.theme_engine
-import os
 from kivy.app import App
 
 from kivy.properties import ListProperty, ObjectProperty,StringProperty
-from gui.theme_engine.theme import ThemeBehaviour, ThemeManager
+from gui.theme_engine.theme import ThemeManager
 from kivy.metrics import dp
 from gui.theme_engine.label import MaterialLabel
 # import cProfile
@@ -67,7 +54,7 @@ class MainApp(App):
         ''' ['Pink', 'Blue', 'Indigo', 'BlueGrey', 'Brown', 'LightBlue', 'Purple', 'Grey', 'Yellow',
             'LightGreen', 'DeepOrange', 'Green', 'Red', 'Teal', 'Orange', 'Cyan', 'Amber', 'DeepPurple', 'Lime']
 '''
-        self.theme_cls.primary_palette = 'DeepOrange'
+        self.theme_cls.primary_palette = 'Teal'
         self.theme_cls.accent_palette = 'Green'
         self.theme_cls.theme_style = 'Dark'
         self.comic_loaded = 'no'
@@ -95,7 +82,7 @@ class MainApp(App):
         self.manager.get_screen('home_screen').build_nav()
         self.manager.get_screen('entities_screen').build_nav()
         self.manager.get_screen('comic_collection_screen').build_nav()
-        self.manager.get_screen('favorites_screen').build_favorites_screen()
+        self.manager.get_screen('favorites_screen').build_nav()
         keybinding.start(Window, App)
         webdebugger.start(Window, App)
         dbl_tap_time = self.config.get('Screen Tap Control','dbl_tap_time')
@@ -116,7 +103,8 @@ class MainApp(App):
         config.setdefaults('Display', {
             'mag_glass_size':   200,
             'right2left':       0,
-            'dblpagesplit':     self.user_data_dir,
+            'dblpagesplit':     '0',
+            'stretch_image':    '0'
 
             })
 
@@ -159,7 +147,7 @@ class MainApp(App):
         pass
 
 #        self.manager.get_screen('comic_screen')._abort_download()
-    def dialog_error(self,error_msg,error_title,s_hint=(.4, .3),font_style='Body1'):
+    def _dialog(self,error_msg,error_title,s_hint=(.4, .3),font_style='Body1'):
         content = ErrorLabel(font_style=font_style,
                                 theme_text_color='Secondary',
                                 text="%s"%error_msg,

@@ -1,18 +1,17 @@
 # -*- coding: utf-8 -*-
-from gui.widgets.custom_widgets import AppScreenTemplate,AppNavDrawer
-from kivy.properties import ObjectProperty
-from gui.widgets.custom_widgets import CommonComicsCoverInnerGrid,\
-    CommonComicsOuterGrid,CommonComicsCoverLabel,CommonComicsCoverImage,CommonComicsScroll,CommonComicsBubbleMenu
-from data.comic_data import ComicCollection, ComicBook
-from comicstream.url_get import CustomUrlRequest
-from kivy.logger import Logger
-from operator import itemgetter, attrgetter, methodcaller
-from kivy.uix.scrollview import ScrollView
-from kivy.uix.gridlayout import GridLayout
-from gui.widgets.circle_menu import MenuSpawner
 import gc
+import pickle
 
+from kivy.properties import ObjectProperty
+from kivy.logger import Logger
+from kivy.metrics import dp
+from kivy.uix.gridlayout import GridLayout
 
+from gui.widgets.custom_widgets import AppScreenTemplate
+from gui.widgets.custom_widgets import CommonComicsCoverInnerGrid, \
+    CommonComicsCoverLabel,CommonComicsCoverImage
+from data.comic_data import ComicCollection, ComicBook
+from tools.url_get import CustomUrlRequest
 
 
 class ComicCollectionScreen(AppScreenTemplate):
@@ -41,14 +40,16 @@ class ComicCollectionScreen(AppScreenTemplate):
         #                      pos_hint={'x': .01, 'center_y': .6},id = 'scroller' )
         #TODO Chagne spaceing make vert spacing bigger and horz smaller
 
-        grid = GridLayout(cols=4, size_hint=(None,None),spacing=(10,40),padding=10, pos_hint = {.2,.2})
+        grid = GridLayout(cols=5, size_hint=(None,None),spacing=(10,40),padding=10, pos_hint = {.2,.2})
         grid.bind(minimum_height=grid.setter('height'))
         base_url = self.app.config.get('Server', 'url')
         for comic in self.collection.do_sort_issue:
             comic_name = '%s #%s'%(comic.series,comic.issue)
             src_thumb = src_thumb = comic.get_cover()
             inner_grid = CommonComicsCoverInnerGrid(id='inner_grid'+str(comic.comic_id_number))
-            comic_thumb = CommonComicsCoverImage(source=src_thumb,id=str(comic.comic_id_number),nocache=True)
+            comic_thumb = CommonComicsCoverImage(source=src_thumb,id=str(comic.comic_id_number),nocache=True,size=(dp(100),dp(154))
+                                                 ,allow_stretch=True,keep_ration=False
+                                                 )
             comic_thumb.comic = comic
             comic_thumb.comics_collection = self.collection
             inner_grid.add_widget(comic_thumb)
@@ -60,7 +61,7 @@ class ComicCollectionScreen(AppScreenTemplate):
 
     def got_error(self,req, error):
         error_title = 'Server Error'
-        self.app.dialog_error(error,error_title)
+        self.app._dialog(error,error_title)
         Logger.critical('ERROR in %s %s'%(req,error))
 
     def get_collection_data(self,comic_collection_type,comic_collection_path):
@@ -78,3 +79,7 @@ class ComicCollectionScreen(AppScreenTemplate):
                                on_redirect=self.got_error,
                                timeout = 55,debug=True
                                )
+    def pickle_it(self):
+        print 'pickle'
+        f = open('comic_collection.pickle2', 'w')
+        pickle.dump(self.collection,f)

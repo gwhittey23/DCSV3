@@ -8,7 +8,7 @@ from kivy.uix.screenmanager import Screen
 from kivy.logger import Logger
 
 from gui.widgets.custom_widgets import AppNavDrawer
-from comicstream.url_get import CustomUrlRequest
+from tools.url_get import CustomUrlRequest
 from gui.theme_engine.button import RaisedButton
 
 
@@ -49,7 +49,7 @@ class SeriesScreen(Screen):
         if self.app.comic_loaded == 'yes':
             self.app.manager.current = 'comic_book_screen'
         else:
-            self.app.dialog_error('No Comic Loaded','Comic Screen Error')
+            self.app._dialog('No Comic Loaded','Comic Screen Error')
 
     def got_time_out(self,req, error):
         Logger.critical('ERROR in %s %s'%(inspect.stack()[0][3],error))

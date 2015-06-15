@@ -1,30 +1,16 @@
 # -*- coding: utf-8 -*-
-import json
-import inspect
 
 from kivy.app import App
-from kivy.uix.image import AsyncImage
-from kivy.uix.button import ButtonBehavior
-from kivy.uix.gridlayout import GridLayout
-from kivy.uix.scrollview import ScrollView
-from gui.widgets.custom_effects import RectangularRippleBehavior
-from kivy.uix.label import Label
 from kivy.properties import ObjectProperty, ListProperty
-from kivy.clock import Clock
-from kivy.uix.screenmanager import Screen
 from kivy.logger import Logger
+
 from gui.widgets.custom_widgets import AppScreenTemplate,AppNavDrawer
 from data.comic_data import ComicCollection, ComicBook
-from comicstream.url_get import CustomUrlRequest
+from tools.url_get import CustomUrlRequest
 from gui.widgets.custom_widgets import CommonComicsCoverInnerGrid,\
-    CommonComicsOuterGrid,CommonComicsCoverLabel,CommonComicsCoverImage,CommonComicsScroll
+    CommonComicsOuterGrid,CommonComicsCoverLabel,CommonComicsCoverImage
 
-from data.settingsjson import settings_json_screen_tap_control
-from gui.screens.series_screen import SeriesScreen
-from gui.screens.entities_screen import EntitiesScreen
-from gui.screens.favorites_screen import FavoritesScreen
-from pprint import pprint
-import pickle
+
 class HomeScreen(AppScreenTemplate):
     tile_icon_data = ListProperty()
 
@@ -78,7 +64,7 @@ class HomeScreen(AppScreenTemplate):
 
     def got_error(self,req, error):
             error_title = 'Server Error'
-            self.app.dialog_error(error,error_title)
+            self.app._dialog(error,error_title)
             Logger.critical('ERROR in %s %s'%(req,error))
 
     def build_recent_comics(self):

@@ -19,11 +19,12 @@
     cols: 1
     rows: 2
     size_hint: (None,None)
-    size: (130,200)
+    size: (dp(100),dp(154))
     spacing: 5
 <CommonComicsCoverImage>:
-    allow_stretch: False
-    size: (130,200)
+    allow_stretch: True
+
+    size: (dp(100),dp(154))
     size_hint: (None, None)
 <CommonComicsCoverLabel>:
     font_style:			'Body1'
@@ -41,7 +42,7 @@
 
     background_color: .2, .9, 1, 1
     size_hint: (None, None)
-    size: (130, 200)
+    size: (dp(100),dp(154))
 
     CommonComicsBubbleButton:
         text: 'Open Comic'

@@ -35,11 +35,11 @@
                 pos_hint:			    {'x': 0, 'top': 1}
 
             FloatLayout:
-                pos_hint:			    {'x': .0001,'top': .9}
+                pos_hint:			    {'x': .0001,'top': .88}
                 size_hint:              1,1
                 id:                     fl1
                 Image:
-                    source:'gui/theme_engine/images/wood_bk.jpg'
+                    source:'gui/theme_engine/images/shelf.png'
                     # self here refers to the widget i.e BoxLayout
                     pos: self.pos
                     allow_stretch: True
@@ -47,13 +47,21 @@
                     width:root.width
                     size_hint:None,None
                     height:root.height-(_toolbar.height)
-
                 ScrollView:
                     id:                 _scroll
-                    size_hint:          (.99,.85)
+                    size_hint:          (.99,.9)
                     do_scroll_y:        True
                     do_scroll_x:        False
-                    pos_hint:           {'x': .01, 'center_y': .6}
+                    pos_hint:           {'x': .025, 'center_y': .57}
+            RaisedButton:
+                size_hint:			None, None
+                size:				dp(130), dp(36)
+                pos_hint:			{'x': 0.001, 'top': .942}
+                elevation_normal:	2
+                theme_style:		'Dark'
+                disabled:			False
+                text:               "Pickle It"
+                on_release:         root.pickle_it()
 
 
 

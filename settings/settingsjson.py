@@ -60,6 +60,12 @@ settings_json_dispaly = json.dumps(
      'section': 'Display',
      'key':     'dblpagesplit'},
 
+    {'type':    'bool',
+     'title':   'Stretch to Page',
+     'desc':    'If on will stretch to fill page',
+     'section': 'Display',
+     'key':     'stretch_image'},
+
     {'type':     'numeric',
     'title':    'Magnifying Glass Size',
     'desc':     'Size of Magnifying Glass Square on each side',
