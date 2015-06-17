@@ -55,13 +55,59 @@
                     pos_hint:           {'x': .025, 'center_y': .57}
             RaisedButton:
                 size_hint:			None, None
-                size:				dp(130), dp(36)
+                size:				dp(250), dp(36)
                 pos_hint:			{'x': 0.001, 'top': .942}
                 elevation_normal:	2
                 theme_style:		'Dark'
                 disabled:			False
-                text:               "Pickle It"
-                on_release:         root.pickle_it()
+                text:               "Add This Collection To Favorites"
+                on_release:         root.add_collection()
+
+
+
+
+
+
+<CollctionAddPopUp@Popup>:
+    textfield_name:    _textfield_name
+    err_lbl:           _error_label
+    hint_text: ''
+    size_hint:(.8,.3)
+    pos_hint:{'center_x':.5,'center_y':.5}
+    title: 'Enter in info for this collection'
+    GridLayout:
+        rows: 3
+        cols:1
+        size_hint:(1,1)
+        SingleLineTextField:
+            id:					_textfield_name
+            hint_text:			root.hint_text
+            size_hint:			0.8, None
+            height:				dp(48)
+            pos_hint:			{'center_x': .5, 'center_y': .5}
+            theme_style:		'Light'
+            foreground_color:  (1,1,1,1)
+        RaisedButton:
+            size_hint:			None, None
+            size:				dp(130), dp(36)
+            pos_hint:			{'x': 0.3, 'top': .94}
+            elevation_normal:	2
+            theme_style:		'Dark'
+            disabled:			False
+            text:               "Submit"
+            on_release:         root.submit_fav()
+        MaterialLabel:
+            text:				""
+            id:                 _error_label
+            font_style:			'Body1'
+            size_hint:			None, None
+            width:				dp(100)
+            height:				dp(40)
+            text_size:			self.size
+            halign:				'center'
+            valign:				'middle'
+
+
 
 
 

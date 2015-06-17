@@ -18,6 +18,7 @@ from gui.widgets.circle_menu import ModernMenu
 from functools import partial
 from data.database import FavItem,DataManager
 from data.comic_data import ComicCollection
+from data.favorites import add_comic_fav
 import os.path
 
 class AppNavDrawer(ThemeBehaviour,NavigationDrawer):
@@ -177,17 +178,7 @@ class CommonComicsCoverImage(RectangularRippleBehavior,ButtonBehavior,AsyncImage
         Logger.debug('enabling %s'%self.id)
         self.disabled = False
     def add_fav(self,*args):
-        dm = DataManager()
-        dm.create()
-        if self.comic.comic_id_number is not None:
-            comic = self.comic
-            session = dm.Session()
-            comic_name = '%s #%s'%(comic.series,str(comic.issue))
-            obj = FavItem(comic_id_number=comic.comic_id_number,
-                          name=comic_name
-                          )
-            session.add(obj)
-            session.commit()
+       add_comic_fav(self.comic)
     def open_comic(self,*args):
         self.disabled = True
         app = App.get_running_app()

@@ -20,10 +20,11 @@ class ComicCollection(object):
 
     # ids = DictProperty({})
     # name = StringProperty()
-    def __init__(self):
+    def __init__(self,name=''):
         self.size = 65
         self.comics = []
         self.mynumber = 32
+        self.name= name
     '''Group of Comics in bundlded together'''
 
     @property

@@ -67,6 +67,15 @@
                 disabled:			False
                 text:               "Edit Favorites"
                 on_release:         root.do_series()
+            RaisedButton:
+                size_hint:			None, None
+                size:				dp(130), dp(36)
+                pos_hint:			{'x': 0.3, 'top': .94}
+                elevation_normal:	2
+                theme_style:		'Dark'
+                disabled:			False
+                text:               "open it"
+                on_release:         root.do_pop()
 
             RelativeLayout:
                 size_hint: 1,.3

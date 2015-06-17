@@ -14,10 +14,19 @@ from gui.theme_engine.dialog import Dialog
 from kivy.core.window import Window
 from kivy.modules import keybinding, webdebugger
 
+from gui.theme_engine.theme import ThemeManager
+from gui.screens.comic_book_screen import ComicBookScreen
+from gui.screens.home_screen import HomeScreen
+from gui.screens.entities_screen import EntitiesScreen
+from gui.screens.favorites_screen import FavoritesScreen
+from gui.screens.comic_collection_screen import ComicCollectionScreen
+from gui.theme_engine.list import MaterialList
+from gui.theme_engine.textfields import SingleLineTextField
+from gui.theme_engine.toolbar import Toolbar
 from kivy.uix.settings import SettingsWithSidebar
 # from memory_profiler import profile
 from kivy.app import App
-
+from gui.screens.home_screen import HomeScreen
 from kivy.properties import ListProperty, ObjectProperty,StringProperty
 from gui.theme_engine.theme import ThemeManager
 from kivy.metrics import dp

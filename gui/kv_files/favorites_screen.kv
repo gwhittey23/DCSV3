@@ -76,6 +76,39 @@
 
 
 
+<SelectedFavoritesFolder@Widget>:
+    size_hint: None, None
+    size: '60dp','60dp'
+    pos_hint:			{'x': .008, 'top': .85}
+    Image:
+        size: '60dp','60dp'
+        source: 'atlas://data/images/defaulttheme/filechooser_selected'
+        pos: root.x,root.y
+    Label:
+        text: ''
+        halign: 'center'
+        size: '16dp', '16dp'
+        pos: root.center_x - self.width / 2, root.y - self.height
+
+
+<FavoritesCollection@Widget>:
+    size_hint: None, None
+    size: '60dp','60dp'
+    pos_hint:			{'x': .008, 'top': .85}
+    _text: self._text
+    Image:
+        size: '60dp','60dp'
+
+        source: 'gui/theme_engine/images/comic_folders/misc_comic_folder.png'
+        pos: root.x,root.y
+    Label:
+        text: root._text
+        font_size:'11sp'
+        halign: 'center'
+        size: '16dp', '16dp'
+        pos: root.center_x - self.width / 2, root.y - self.height
+
+
 <FavoritesFolder@Widget>:
     size_hint: None, None
     size: '60dp','60dp'

@@ -89,14 +89,6 @@ class EntitiesScreen(AppScreenTemplate):
     def get_entities_data(self, entities_key, callback):
         base_url = App.get_running_app().config.get('Server', 'url')
         api_key = App.get_running_app().config.get('Server', 'api_key')
-        if '/' in entities_key:
-            self.app._dialog(
-                                'Please use search for %s name due to the "/" \nin the name as server is unable to process this ' %
-                                (entities_key),'%s Naming Error' % (entities_key), (.9, .3), 'Subhead')
-            return
-
-
-
         if entities_key == 'up level':
             r_place = os.path.basename(os.path.normpath(self.entities_path))
             r_place = '/%s'%r_place
@@ -111,7 +103,6 @@ class EntitiesScreen(AppScreenTemplate):
         self.entities_path = url_path
         self.ids.entities_location.text = unquote(url_path)
         entities_list = "%s/entities%s?api_key=%s" % (base_url, url_path, api_key)
-
         req = CustomUrlRequest(entities_list,
                                self.build_entities_list,
                                on_error=self.got_error,

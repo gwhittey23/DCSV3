@@ -6,12 +6,13 @@ from kivy.properties import ObjectProperty
 from kivy.logger import Logger
 from kivy.metrics import dp
 from kivy.uix.gridlayout import GridLayout
-
+from kivy.uix.popup import Popup
 from gui.widgets.custom_widgets import AppScreenTemplate
 from gui.widgets.custom_widgets import CommonComicsCoverInnerGrid, \
     CommonComicsCoverLabel,CommonComicsCoverImage
 from data.comic_data import ComicCollection, ComicBook
 from tools.url_get import CustomUrlRequest
+from data.favorites import add_collection
 
 
 class ComicCollectionScreen(AppScreenTemplate):
@@ -79,7 +80,23 @@ class ComicCollectionScreen(AppScreenTemplate):
                                on_redirect=self.got_error,
                                timeout = 55,debug=True
                                )
-    def pickle_it(self):
-        print 'pickle'
-        f = open('comic_collection.pickle2', 'w')
-        pickle.dump(self.collection,f)
+    def add_collection(self):
+        self.collection_pop = CollctionAddPopUp(collection=self.collection)
+        self.collection_pop.hint_text = 'Enter a name you want this Collection to have'
+        self.collection_pop.open()
+
+    def submit_fav(self):
+        print self.collection_pop.content.ids._textfield_name.text
+
+class CollctionAddPopUp(Popup):
+    collection = ObjectProperty()
+    def __init__(self, **kwargs):
+        super(CollctionAddPopUp, self).__init__(**kwargs)
+
+    def submit_fav(self):
+        if self.textfield_name.text:
+            self.collection.name = self.textfield_name.text
+            add_collection(self.collection)
+            self.dismiss()
+        else:
+            self.err_lbl.text = 'You Must Enter a Name'

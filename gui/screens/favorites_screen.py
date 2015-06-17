@@ -5,16 +5,7 @@ from gui.theme_engine.theme import ThemeBehaviour
 
 from gui.widgets.custom_widgets import AppScreenTemplate,AppNavDrawer
 from kivy.uix.widget import Widget
-from gui.widgets.custom_widgets import CommonComicsCoverInnerGrid,\
-    CommonComicsOuterGrid,CommonComicsCoverLabel,CommonComicsCoverImage,CommonComicsScroll
-from kivy.clock import Clock
 from kivy.uix.gridlayout import GridLayout
-from kivy.uix.button import Button
-from kivy.animation import Animation
-from kivy.lang import Factory
-from kivy.uix.scatterlayout import ScatterLayout,Scatter
-from kivy.uix.anchorlayout import AnchorLayout
-from kivy.uix.relativelayout import RelativeLayout
 from functools import partial
 from kivy.properties import StringProperty,ListProperty,ObjectProperty
 from kivy.uix.behaviors import DragBehavior
@@ -23,7 +14,10 @@ from kivy.uix.image import AsyncImage,Image
 from kivy.clock import Clock
 from kivy.uix.bubble import Bubble,BubbleButton
 from gui.widgets.custom_effects import RectangularRippleBehavior
+from utils import  iterfy
 import gc
+from data.database import FavItem,FavCollection,FavFolder,DataManager
+from data.favorites import add_comic_fav,add_collection,get_fav_collection,get_loose_fav
 import pickle
 
 
@@ -57,6 +51,14 @@ class FavoritesScreen(AppScreenTemplate):
         Clock.unschedule(self.update)
 
     def build_favorites_screen(self):
+        fav_collection_list = get_fav_collection()
+        for s in iterfy(fav_collection_list):
+            fav_item_list = s.fav_items
+
+
+        fav_loose = get_loose_fav()
+        for fav  in iterfy(fav_loose):
+            print 'fav_item::%s'%fav.name
         f = open('comic_collection.pickle2', 'r')
         self.collection = pickle.load(f)
         f.close()
@@ -66,8 +68,8 @@ class FavoritesScreen(AppScreenTemplate):
         fav_folder_list = ()
         grid2 = GridLayout(cols=6, size_hint=(1,.5),spacing=(20,20),padding=10, pos_hint = {'x':.01,'y':.4},id='cover_outgrid')
 
-        for i in range(1,15):
-            fav_folder = FavoritesFolder(id='fav_fodler_%s'%str(i))
+        for s in iterfy(fav_collection_list):
+            fav_folder = FavoritesCollection(id='%s'%s.id,_text='%s'%s.name)
             grid2.add_widget(fav_folder)
             self.fav_folder_list.append(fav_folder)
         self.main.add_widget(grid2)
@@ -216,3 +218,6 @@ class FavoritesBubbleButton(ThemeBehaviour,ToggleButton):
         self.background_color = self._theme_cls.primary_color
         self.background_color_down = self._theme_cls.primary_dark
         self.background_color_disabled = self._theme_cls.primary_dark
+
+class FavoritesCollection(Widget):
+    _text = StringProperty()
