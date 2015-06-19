@@ -60,6 +60,19 @@
         text: 'Close Menu'
         on_release:root.close_me()
 
+<CommonCollectionsBubbleMenu>:
+    orientation: 'vertical'
+    background_image: 'atlas://data/images/defaulttheme/button_pressed'
+    background_color: .2, .9, 1, 1
+    size_hint: (None, None)
+    size: (dp(60),dp(60))
+    CommonComicsBubbleButton:
+        text: 'Open Collection'
+        on_release:root.open_collection()
+    CommonComicsBubbleButton:
+        text: 'Close Menu'
+        on_release:root.close_me()
+
 
 <CommonComicsBubbleButton>:
     font_size: '10sp'

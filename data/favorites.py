@@ -1,4 +1,4 @@
-from data.database import DataManager,FavItem,FavCollection,FavFolder, get_or_create
+from data.database import DataManager,FavItem,FavCollection,FavFolder, get_or_create,FavItemCollectioLink
 
 def add_comic_fav(comic,):
     dm = DataManager()
@@ -7,12 +7,12 @@ def add_comic_fav(comic,):
         comic = comic
         session = dm.Session()
         comic_name = '%s #%s'%(comic.series,str(comic.issue))
-        new_collection = FavCollection.as_unique(session, name='Loose Comic')
+        new_collection = FavCollection.as_unique(session, name='Unsorted Comics')
 
         new_favitem = FavItem.as_unique(session,comic_id_number=comic.comic_id_number)
         new_favitem.name = comic_name
+        new_favitem.comic_json = comic.comic_json
         new_favitem.fav_collection.append(new_collection)
-
         session.add(new_favitem)
         session.commit()
 
@@ -42,7 +42,7 @@ def add_collection(collection):
         for comic in collection.comics:
             comic_name = '%s #%s'%(comic.series,str(comic.issue))
             new_comic = FavItem(comic_id_number = comic.comic_id_number,
-                      name = comic_name
+                      name = comic_name,comic_json=comic.comic_json
                       )
             new_comic.fav_collection.append(fav_collection)
             s.add(new_comic)
@@ -54,12 +54,28 @@ def get_fav_collection():
     session = dm.Session()
     return session.query(FavCollection).order_by(FavCollection.id)
 
-def get_single_colelction(collection_id):
+def get_single_colelction(**kwargs):
     dm = DataManager()
     dm.create()
     session = dm.Session()
-    return session.query(FavCollection).filter(id==collection_id).first()
+    query = session.query(FavCollection).filter_by(**kwargs).join(FavCollection.fav_items).one()
+    return query
 
+def delete_collection(collection_id):
+    dm = DataManager()
+    dm.create()
+    session = dm.Session()
+    query = session.query(FavCollection).filter_by(id=collection_id).first()
+    session.delete(query)
+    session.commit()
+
+def rename_collection(collection_id,new_name,*args):
+    dm = DataManager()
+    dm.create()
+    session = dm.Session()
+    query = session.query(FavCollection).filter_by(id=collection_id).first()
+    query.name = new_name
+    session.commit()
 def get_loose_fav():
     dm = DataManager()
     dm.create()

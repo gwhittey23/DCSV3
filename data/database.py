@@ -4,7 +4,7 @@ from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, Float, String, DateTime, Table, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
@@ -13,9 +13,32 @@ from sqlalchemy.sql.expression import ClauseElement
 from kivy.uix.image import AsyncImage
 from kivy.loader import Loader
 from kivy.loader import Loader
-
+from sqlalchemy.types import TypeDecorator, VARCHAR
+import json
 Base = declarative_base()
 
+
+class JSONEncodedDict(TypeDecorator):
+    """Represents an immutable structure as a json-encoded string.
+
+    Usage::
+
+        JSONEncodedDict(255)
+
+    """
+
+    impl = VARCHAR
+
+    def process_bind_param(self, value, dialect):
+        if value is not None:
+            value = json.dumps(value)
+
+        return value
+
+    def process_result_value(self, value, dialect):
+        if value is not None:
+            value = json.loads(value)
+        return value
 
 class UniqueMixin(object):
     @classmethod
@@ -59,7 +82,8 @@ class FavCollection(UniqueMixin, Base):
     )
     fav_items = relationship(
         'FavItem',
-        secondary='favitem_collection_link'
+        secondary='favitem_collection_link',
+        backref='fav_collection'
 
     )
     @classmethod
@@ -79,16 +103,17 @@ class FavItem(UniqueMixin, Base):
     name = Column(String(250), nullable=True)
     comic_id_number = Column(Integer,nullable=False)
     icon = Column(String(250),nullable=True)
+    comic_json = Column(JSONEncodedDict(255),nullable=False)
     fav_folder = relationship(
         FavFolder,
         secondary='favitem_folder_link'
     )
 
-    fav_collection = relationship(
-        FavCollection,
-        secondary='favitem_collection_link'
-
-    )
+    # fav_collection = relationship(
+    #     FavCollection,
+    #     secondary='favitem_collection_link'
+    #
+    # )
     @classmethod
     def unique_hash(cls, comic_id_number):
         return comic_id_number
@@ -117,7 +142,6 @@ class FavCollectionFolderLink(Base):
 class DataManager():
     def __init__(self):
         self.dbfile =  "data/dcsfav.sqlite"
-        print self.dbfile
     def delete(self):
         if os.path.exists( self.dbfile ):
             os.unlink( self.dbfile )
@@ -130,6 +154,12 @@ class DataManager():
         self.Session = scoped_session(session_factory)
 
         Base.metadata.create_all(self.engine)
+        session = self.Session()
+        results = session.query(FavCollection).first()
+        if results is None:
+            new_collection = FavCollection(name='Unsorted Comics')
+            session.add(new_collection)
+            session.commit()
 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql.expression import ClauseElement
@@ -197,3 +227,5 @@ def _unique(session, cls, hashfunc, queryfunc, constructor, arg, kw):
                 session.add(obj)
         cache[key] = obj
         return obj
+
+

@@ -138,6 +138,7 @@ class CommonComicsCoverImage(RectangularRippleBehavior,ButtonBehavior,AsyncImage
         print 'save fired'
         cover_file = 'data/img/%s.png'%str(self.comic.comic_id_number)
         self.export_to_png(cover_file)
+
     def _proxy_loaded(self,proxyImage):
         if proxyImage.image.texture:
             print 'if proxyImage.image.texture:'
@@ -174,11 +175,14 @@ class CommonComicsCoverImage(RectangularRippleBehavior,ButtonBehavior,AsyncImage
         if self.clock_set == 'yes':
             Clock.unschedule(touch.ud['event'])
             self.clock_set = 'no'
+
     def enable_me(self,instance):
         Logger.debug('enabling %s'%self.id)
         self.disabled = False
+
     def add_fav(self,*args):
        add_comic_fav(self.comic)
+
     def open_comic(self,*args):
         self.disabled = True
         app = App.get_running_app()
@@ -194,8 +198,27 @@ class CommonComicsCoverImage(RectangularRippleBehavior,ButtonBehavior,AsyncImage
         app = App.get_running_app()
         app.root.current = 'comic_book_screen'
         comic_screen = app.root.get_screen('comic_book_screen')
+        comic_screen.use_pagination = False
+        comic_screen.last_load = 0
         comic_screen.load_comic_book(self.comic,self.comics_collection)
         Clock.schedule_once(self.enable_me, .5)
+    def open_next_section(self, *args):
+        self.disabled = True
+        app = App.get_running_app()
+        app.root.current = 'comic_book_screen'
+        comic_screen = app.root.get_screen('comic_book_screen')
+        comic_screen.load_comic_book(self.comic,self.comics_collection)
+        Clock.schedule_once(self.enable_me, .5)
+
+    def open_prev_section(self, *args):
+        self.disabled = True
+        app = App.get_running_app()
+        app.root.current = 'comic_book_screen'
+        comic_screen = app.root.get_screen('comic_book_screen')
+        comic_screen.last_load = comic_screen.last_section
+        comic_screen.load_comic_book(self.comic,self.comics_collection)
+        Clock.schedule_once(self.enable_me, .5)
+
 
 class CommonComicsBubbleMenu(ThemeBehaviour,Bubble):
     def __init__(self, **kwargs):
@@ -233,3 +256,21 @@ class CommonComicsBubbleButton(ThemeBehaviour,ToggleButton):
         self.background_color = self._theme_cls.primary_color
         self.background_color_down = self._theme_cls.primary_dark
         self.background_color_disabled = self._theme_cls.primary_dark
+
+
+class CommonCollectionsBubbleMenu(ThemeBehaviour,Bubble):
+    def __init__(self, **kwargs):
+        super(CommonCollectionsBubbleMenu, self).__init__(**kwargs)
+        self.background_normal= ''
+        self.background_down = ''
+        self.background_color = self._theme_cls.primary_color
+        self.background_color_down = self._theme_cls.primary_dark
+
+    def open_collection(self,*args):
+        self.parent.load_collection()
+        self.parent.collection_bubble_menu = ''
+        self.parent.remove_widget(self)
+
+    def close_me(self,*args):
+        self.parent.collection_bubble_menu = ''
+        self.parent.remove_widget(self)

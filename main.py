@@ -85,6 +85,7 @@ class MainApp(App):
         print 'main app test me'
 
     def build(self):
+        self.icon = 'logo.png'
         self.settings_cls = SettingsWithSidebar
         if DEBUG == False :self.use_kivy_settings = False
         self.manager = AppScreenManager()
@@ -102,18 +103,18 @@ class MainApp(App):
     def build_config(self, config):
         config.setdefaults('Server', {
             'url':          'http://',
-            'storagedir':   self.user_data_dir,
-            'max_height':   0,
-            'use_api_key':  0,
-            'api_key':      ''
-
+            'storagedir':       self.user_data_dir,
+            'max_height':       0,
+            'use_api_key':      0,
+            'api_key':          '',
+            'max_pages_limit'   :50,
             })
 
         config.setdefaults('Display', {
             'mag_glass_size':   200,
             'right2left':       0,
             'dblpagesplit':     '0',
-            'stretch_image':    '0'
+            'stretch_image':    '0',
 
             })
 
@@ -127,7 +128,7 @@ class MainApp(App):
             'middle_right':     'Next Comic',
             'middle_left':      'Prev Comic',
             'middle_center':    'Open Collection Browser',
-            'dbl_tap_time':      250
+            'dbl_tap_time':      250,
             })
 
     def build_settings(self, settings):

@@ -1,9 +1,11 @@
 <FavoritesScreen>:
+    id:     favorites_screen
     name: 'favorites_screen'
     toolbar: 		_toolbar
     nav: 			_nav
     main:           _main
     scroll:         _favscroll
+    edit_switch:      _edit_switch
     FavoritesScreenNavigationDrawer:
         id: 				_nav
         side:				'left'
@@ -32,6 +34,15 @@
                 icons_theme_style:	'Dark'
                 elevation:			6
                 pos_hint:			{'x': 0, 'top': 1}
+            BoxLayout:
+                pos_hint:			{'x':.1,'y':.89}
+                size_hint: .3,None
+                height: '78dp'
+                Label:
+                    text: 'Edit Mode'
+                Switch:
+                    id: _edit_switch
+
             ScrollView:
                 id:                 _favscroll
                 size_hint:          (1,.6)
@@ -91,18 +102,18 @@
         pos: root.center_x - self.width / 2, root.y - self.height
 
 
-<FavoritesCollection@Widget>:
+<FavoritesCollection>:
     size_hint: None, None
     size: '60dp','60dp'
     pos_hint:			{'x': .008, 'top': .85}
     _text: self._text
     Image:
         size: '60dp','60dp'
-
         source: 'gui/theme_engine/images/comic_folders/misc_comic_folder.png'
         pos: root.x,root.y
     Label:
         text: root._text
+        id: fav_col_lbl
         font_size:'11sp'
         halign: 'center'
         size: '16dp', '16dp'
@@ -123,7 +134,7 @@
         size: '16dp', '16dp'
         pos: root.center_x - self.width / 2, root.y - self.height
 
-<FavoritesBubbleMenu>:
+<FavItemBubbleMenu>:
     orientation: 'vertical'
     background_image: 'atlas://data/images/defaulttheme/button_pressed'
 
@@ -132,21 +143,33 @@
     size: (dp(100),dp(154))
 
     CommonComicsBubbleButton:
-        text: 'Open Comic'
-        on_release:root.open_comic()
+        text: 'Copy Item'
+        on_release:root.copy_item()
     CommonComicsBubbleButton:
-        text: 'Open Collection'
-        on_release:root.open_collection()
+        text: 'Move Item'
+        on_release:root.move_item()
     CommonComicsBubbleButton:
-        text: 'Add to Favorites'
-        on_release:root.add_fav()
-    CommonComicsBubbleButton:
-        text: 'Add to a Collection'
-        on_release:root.open_comic()
+        text: 'Delete Item'
+        on_release:root.delete_item()
     CommonComicsBubbleButton:
         text: 'Close Menu'
         on_release:root.close_me()
 
+<FavCollectionBubleMenu>:
+    orientation: 'vertical'
+    background_image: 'atlas://data/images/defaulttheme/button_pressed'
+    background_color: .2, .9, 1, 1
+    size_hint: (None, None)
+    size: (dp(60),dp(60))
+    CommonComicsBubbleButton:
+        text: 'Rename Collection'
+        on_release:root.rename_collection()
+    CommonComicsBubbleButton:
+        text: 'Delete Collection'
+        on_release:root.delete_collection()
+    CommonComicsBubbleButton:
+        text: 'Close Menu'
+        on_release:root.close_me()
 
 <FavoritesBubbleButton>:
     font_size: '10sp'
@@ -154,27 +177,49 @@
     background_down: ''
     background_normal: ''
 
-#<Widget>:
-#    canvas.after:
-#        Line:
-#            rectangle: self.x+1,self.y+1,self.width-1,self.height-1
-#            dash_offset: 5
-#            dash_length: 3
-#
-#<Widgets>:
-#    AnchorLayout:
-#        anchor_x: 'right'
-#        anchor_y: 'bottom'
-#        GridLayout:
-#            cols: 3
-#            size_hint: .6,.6
-#            Label:
-#            StackLayout:
-#                orientation: 'lr-tb'
-#                Widget:
-#                    size_hint: .2,.2
-#                Button:
-#                    size_hint: .3,.3
-#                    text: "how?"
-#            Widget:
-#            Widget:
+<CollctionRenamePopUp@Popup>:
+    textfield_name:    _textfield_name
+    _text:              self._text
+    err_lbl:           _error_label
+    hint_text: ''
+    size_hint:(.8,.3)
+    pos_hint:{'center_x':.5,'center_y':.5}
+    title: 'Enter in info for this collection'
+    GridLayout:
+        rows: 3
+        cols:1
+        size_hint:(1,1)
+        SingleLineTextField:
+            id:					_textfield_name
+            hint_text:			root.hint_text
+            text:               root._text
+            size_hint:			0.8, None
+            height:				dp(48)
+            pos_hint:			{'center_x': .5, 'center_y': .5}
+            theme_style:		'Light'
+            foreground_color:  (1,1,1,1)
+        RaisedButton:
+            size_hint:			None, None
+            size:				dp(130), dp(36)
+            pos_hint:			{'x': 0.3, 'top': .94}
+            elevation_normal:	2
+            theme_style:		'Dark'
+            disabled:			False
+            text:               "Submit"
+            on_release:         root.rename_collection()
+        MaterialLabel:
+            text:				""
+            id:                 _error_label
+            font_style:			'Body1'
+            size_hint:			None, None
+            width:				dp(100)
+            height:				dp(40)
+            text_size:			self.size
+            halign:				'center'
+            valign:				'middle'
+
+<CopyMoveItemPopup@Popup>:
+
+    size_hint:(.8,.3)
+    pos_hint:{'center_x':.5,'center_y':.5}
+    title: 'Enter in info for this collection'

@@ -84,6 +84,8 @@ class ComicBook(object):
     def __init__(self, data,*args, **kwargs):
 
         comic_data = data
+        self.comic_json = data
+        print 'comic_data:%s'%comic_data
         self.comic_id_number = comic_data['id']#this is the id number used for comicstream switched to this because of id of widget
         self.added_ts = comic_data['added_ts']
         self.month = comic_data['month']

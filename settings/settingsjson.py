@@ -38,6 +38,11 @@ settings_json_server = json.dumps([
      'section': 'Server',
      'key':     'api_key'},
 
+    {'type':     'numeric',
+    'title':    'Max Pages to Load',
+    'desc':     'Number if max pages to load before pagination',
+    'section':  'Server',
+    'key':      'max_pages_limit'},
 
     ])
 
