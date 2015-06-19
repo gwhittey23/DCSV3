@@ -1,30 +1,28 @@
 # -*- coding: utf-8 -*-
-import kivy
+from functools import partial
+import gc
+import os
+
 from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.button import Button
-from gui.theme_engine.theme import ThemeBehaviour
-
-from gui.widgets.custom_widgets import AppScreenTemplate,AppNavDrawer,CommonCollectionsBubbleMenu
 from kivy.uix.widget import Widget
 from kivy.uix.gridlayout import GridLayout
-from functools import partial
 from kivy.properties import StringProperty,ListProperty,ObjectProperty,NumericProperty
 from kivy.uix.behaviors import DragBehavior
 from kivy.uix.label import Label
-from kivy.uix.image import AsyncImage,Image
+from kivy.uix.image import Image
 from kivy.clock import Clock
-from kivy.uix.bubble import Bubble,BubbleButton
-from gui.widgets.custom_effects import RectangularRippleBehavior
+from kivy.uix.bubble import Bubble
 from kivy.logger import Logger
-from utils import  iterfy
-import gc
-import os
-from data.database import FavItem,FavCollection,FavFolder,DataManager
-from data.favorites import add_comic_fav,add_collection,get_fav_collection,get_loose_fav, get_single_colelction, \
-    delete_collection, rename_collection
 from kivy.uix.popup import Popup
 from kivy.app import App
 
+from gui.theme_engine.theme import ThemeBehaviour
+from gui.widgets.custom_widgets import AppScreenTemplate,AppNavDrawer,CommonCollectionsBubbleMenu
+from gui.widgets.custom_effects import RectangularRippleBehavior
+from tools.utils import  iterfy
+from data.database import FavCollection, DataManager
+from data.favorites import get_fav_collection, delete_collection, rename_collection
 
 
 class FavoritesScreen(AppScreenTemplate):

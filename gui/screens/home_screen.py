@@ -7,6 +7,7 @@ from kivy.logger import Logger
 from gui.widgets.custom_widgets import AppScreenTemplate,AppNavDrawer
 from data.comic_data import ComicCollection, ComicBook
 from tools.url_get import CustomUrlRequest
+
 from gui.widgets.custom_widgets import CommonComicsCoverInnerGrid,\
     CommonComicsOuterGrid,CommonComicsCoverLabel,CommonComicsCoverImage
 from kivy.uix.popup import Popup

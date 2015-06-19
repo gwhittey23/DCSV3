@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
 import gc
-import pickle
 
 from kivy.properties import ObjectProperty
 from kivy.logger import Logger
 from kivy.metrics import dp
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.popup import Popup
+
 from gui.widgets.custom_widgets import AppScreenTemplate
 from gui.widgets.custom_widgets import CommonComicsCoverInnerGrid, \
     CommonComicsCoverLabel,CommonComicsCoverImage
 from data.comic_data import ComicCollection, ComicBook
 from tools.url_get import CustomUrlRequest
 from data.favorites import add_collection
-from utils import iterfy
+from tools.utils import iterfy
 from data.database import DataManager,FavCollection
 
 class ComicCollectionScreen(AppScreenTemplate):
