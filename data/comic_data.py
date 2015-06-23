@@ -25,6 +25,7 @@ class ComicCollection(object):
         self.comics = []
         self.mynumber = 32
         self.name= name
+
     '''Group of Comics in bundlded together'''
 
     @property
@@ -35,6 +36,21 @@ class ComicCollection(object):
     def do_sort_issue(self):
         return sorted(self.comics,key=attrgetter('series','issue'))
         # return sorted(comic.issue for comic in sorted(comic.series for comic in self.comics) )
+
+    @property
+    def do_sort_pub_date(self):
+        return sorted(self.comics,key=attrgetter('pubdate'))
+
+
+    def do_sort(self,sort_by):
+        if sort_by == 'Issue':
+            comic_collection_sorted = self.do_sort_issue
+        elif sort_by == 'Pub Date':
+            comic_collection_sorted = self.do_sort_pub_date
+        else:
+            comic_collection_sorted = self.comics
+        return comic_collection_sorted
+
     def add_comic(self, comic, index=0):
 
         '''

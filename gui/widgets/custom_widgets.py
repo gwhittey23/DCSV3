@@ -8,6 +8,7 @@ from kivy.uix.image import AsyncImage,Image
 from kivy.uix.button import ButtonBehavior
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.scrollview import ScrollView
+from kivy.uix.popup import Popup
 from kivy.uix.bubble import Bubble,BubbleButton
 from gui.widgets.custom_effects import RectangularRippleBehavior
 from kivy.uix.label import Label
@@ -18,7 +19,7 @@ from gui.widgets.circle_menu import ModernMenu
 from functools import partial
 from data.database import FavItem,DataManager
 from data.comic_data import ComicCollection
-from data.favorites import add_comic_fav
+from data.favorites import add_comic_fav, add_collection
 import os.path
 
 class AppNavDrawer(ThemeBehaviour,NavigationDrawer):
@@ -134,6 +135,7 @@ class CommonComicsCoverImage(RectangularRippleBehavior,ButtonBehavior,AsyncImage
     menu_cls = ObjectProperty(ModernMenu)
     comic_bubble_menu = ObjectProperty()
     clock_set = StringProperty()
+    use_bubble_menu = ObjectProperty()
     def save_cover(self,dt):
         print 'save fired'
         cover_file = 'data/img/%s.png'%str(self.comic.comic_id_number)
@@ -146,17 +148,24 @@ class CommonComicsCoverImage(RectangularRippleBehavior,ButtonBehavior,AsyncImage
             Clock.schedule_once(self.save_cover, 2)
 
     def on_touch_down(self, touch):
+
         if self.collide_point(*touch.pos):
-            self.create_clock(touch)
-            if touch.is_double_tap:
-                self.delete_clock(touch)
-                self.open_collection()
+            if self.use_bubble_menu == False:
+                pass
+            else:
+                self.create_clock(touch)
+                if touch.is_double_tap:
+                    self.delete_clock(touch)
+                    self.open_collection()
         return super(CommonComicsCoverImage, self).on_touch_down(touch)
 
     def on_touch_up(self, touch):
-        if self.collide_point(*touch.pos):
-            self.delete_clock(touch)
-            self.clock_set = 'no'
+        if self.use_bubble_menu == False:
+            pass
+        else:
+            if self.collide_point(*touch.pos):
+                self.delete_clock(touch)
+                self.clock_set = 'no'
         return super(CommonComicsCoverImage, self).on_touch_up(touch)
 
     def show_bubble(self, touch, dt):
@@ -271,6 +280,40 @@ class CommonCollectionsBubbleMenu(ThemeBehaviour,Bubble):
         self.parent.collection_bubble_menu = ''
         self.parent.remove_widget(self)
 
+    def view_items(self,*args):
+        x = self.parent
+        x.collection_bubble_menu = ''
+        x.remove_widget(self)
+        x.view_items(self)
+
     def close_me(self,*args):
         self.parent.collection_bubble_menu = ''
         self.parent.remove_widget(self)
+
+
+
+class CollctionAddPopUp(Popup):
+    collection = ObjectProperty()
+    use_collection = StringProperty()
+    def __init__(self, **kwargs):
+        super(CollctionAddPopUp, self).__init__(**kwargs)
+
+    def submit_fav(self):
+
+        if self.textfield_name.text:
+            if self.use_collection=='True':
+                self.collection.name = self.textfield_name.text
+                new_collection = self.collection
+            else:
+                new_collection = ComicCollection(name=self.textfield_name.text)
+
+            x_sort_by = self.collection_sort.text
+            new_id = add_collection(new_collection, sort_by=x_sort_by, add_with_items=self.use_collection)
+            if self.use_collection =='False':
+                app = App.get_running_app()
+                favorites_screen = app.root.get_screen('favorites_screen')
+                favorites_screen.build_favorites_screen(new_id)
+            self.dismiss()
+
+        else:
+            self.err_lbl.text = 'You Must Enter a Name'

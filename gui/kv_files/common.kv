@@ -67,8 +67,11 @@
     size_hint: (None, None)
     size: (dp(60),dp(60))
     CommonComicsBubbleButton:
-        text: 'Open Collection'
+        text: 'Open in Reader'
         on_release:root.open_collection()
+    CommonComicsBubbleButton:
+        text: 'View Items'
+        on_release:root.view_items()
     CommonComicsBubbleButton:
         text: 'Close Menu'
         on_release:root.close_me()

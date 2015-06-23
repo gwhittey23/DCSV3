@@ -6,6 +6,7 @@
     main:           _main
     scroll:         _favscroll
     edit_switch:      _edit_switch
+    current_collection_label:    _current_collection_label
     FavoritesScreenNavigationDrawer:
         id: 				_nav
         side:				'left'
@@ -42,7 +43,25 @@
                     text: 'Edit Mode'
                 Switch:
                     id: _edit_switch
-
+            RaisedButton:
+                size_hint:			None, None
+                size:				dp(130), dp(36)
+                pos_hint:			{'x':.5,'y':.905}
+                elevation_normal:	2
+                theme_style:		'Dark'
+                disabled:			False
+                text:               "Add Collection"
+                on_release:         root.add_collection()
+            MaterialLabel:
+                text:				'TEXT For Current Collection'
+                id:                 _current_collection_label
+                font_style:			'Headline'
+                size_hint:			None, None
+                width:				dp(250)
+                height:				dp(50)
+                text_size:			self.size
+                pos_hint:			{'x':.01,'y':.64}
+                halign:				'left'
             ScrollView:
                 id:                 _favscroll
                 size_hint:          (1,.6)
@@ -143,11 +162,8 @@
     size: (dp(100),dp(154))
 
     CommonComicsBubbleButton:
-        text: 'Copy Item'
+        text: 'Copy/Move Item'
         on_release:root.copy_item()
-    CommonComicsBubbleButton:
-        text: 'Move Item'
-        on_release:root.move_item()
     CommonComicsBubbleButton:
         text: 'Delete Item'
         on_release:root.delete_item()
@@ -162,7 +178,7 @@
     size_hint: (None, None)
     size: (dp(60),dp(60))
     CommonComicsBubbleButton:
-        text: 'Rename Collection'
+        text: 'Edit Collection'
         on_release:root.rename_collection()
     CommonComicsBubbleButton:
         text: 'Delete Collection'
@@ -180,14 +196,14 @@
 <CollctionRenamePopUp@Popup>:
     textfield_name:    _textfield_name
     _text:              self._text
+    collection_sort:   _collection_sort
     err_lbl:           _error_label
     hint_text: ''
     size_hint:(.8,.3)
     pos_hint:{'center_x':.5,'center_y':.5}
     title: 'Enter in info for this collection'
-    GridLayout:
-        rows: 3
-        cols:1
+    RelativeLayout:
+
         size_hint:(1,1)
         SingleLineTextField:
             id:					_textfield_name
@@ -195,18 +211,37 @@
             text:               root._text
             size_hint:			0.8, None
             height:				dp(48)
-            pos_hint:			{'center_x': .5, 'center_y': .5}
+            pos_hint:			{'x': .01, 'top': .95}
             theme_style:		'Light'
             foreground_color:  (1,1,1,1)
+        MaterialLabel:
+            text:				'Sort By'
+            id:                 _collection_sort_label
+            font_style:			'Body1'
+            size_hint:			None, None
+            width:				dp(100)
+            height:				dp(40)
+            text_size:			self.size
+            pos_hint:			{'x': .01, 'top': .75}
+            halign:				'center'
+            valign:				'middle'
+        Spinner:
+            text:               'Issue'
+            id:                 _collection_sort
+            values:             'Issue', 'Pub Date'
+            size_hint:			None, None
+            size:				dp(130), dp(36)
+            pos_hint:			{'x': .4, 'top': .75}
         RaisedButton:
             size_hint:			None, None
             size:				dp(130), dp(36)
-            pos_hint:			{'x': 0.3, 'top': .94}
+            pos_hint:			{'x': 0.7, 'top': .2}
             elevation_normal:	2
             theme_style:		'Dark'
             disabled:			False
             text:               "Submit"
             on_release:         root.rename_collection()
+
         MaterialLabel:
             text:				""
             id:                 _error_label
@@ -219,7 +254,45 @@
             valign:				'middle'
 
 <CopyMoveItemPopup@Popup>:
-
+    copy_spinner:    _copy_spinner
     size_hint:(.8,.3)
     pos_hint:{'center_x':.5,'center_y':.5}
     title: 'Enter in info for this collection'
+    RelativeLayout:
+        size_hint:(1,1)
+        MaterialLabel:
+            text:				'Copy To'
+            id:                 _collection_sort_label
+            font_style:			'Body1'
+            size_hint:			None, None
+            width:				dp(100)
+            height:				dp(40)
+            text_size:			self.size
+            pos_hint:			{'x': .01, 'top': .75}
+            halign:				'center'
+            valign:				'middle'
+        Spinner:
+
+            id:                 _copy_spinner
+            values:             'Issue', 'Pub Date'
+            size_hint:			None, None
+            size:				dp(130), dp(36)
+            pos_hint:			{'x': .4, 'top': .75}
+        RaisedButton:
+            size_hint:			None, None
+            size:				dp(130), dp(36)
+            pos_hint:			{'x': 0.7, 'top': .2}
+            elevation_normal:	2
+            theme_style:		'Dark'
+            disabled:			False
+            text:               "Copy"
+            on_release:         root.copy_fav()
+        RaisedButton:
+            size_hint:			None, None
+            size:				dp(130), dp(36)
+            pos_hint:			{'x': 0.1, 'top': .2}
+            elevation_normal:	2
+            theme_style:		'Dark'
+            disabled:			False
+            text:               "Move"
+            on_release:         root.move_fav()

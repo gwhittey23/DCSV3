@@ -76,6 +76,7 @@ class FavCollection(UniqueMixin, Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(250))
     icon = Column(String(250),nullable=True)
+    sort_by = Column(String(250),nullable=True)
     fav_folder = relationship(
         FavFolder,
         secondary='favcollection_folder_link'
@@ -99,9 +100,9 @@ class FavItem(UniqueMixin, Base):
     __tablename__ = 'fav_item'
     # Here we define columns for the table person
     # Notice that each column is also a normal Python instance attribute.
-    id = Column(Integer, primary_key=True)
+    # id = Column(Integer, primary_key=True)
     name = Column(String(250), nullable=True)
-    comic_id_number = Column(Integer,nullable=False)
+    comic_id_number = Column(Integer, primary_key=True)
     icon = Column(String(250),nullable=True)
     comic_json = Column(JSONEncodedDict(255),nullable=False)
     fav_folder = relationship(
@@ -125,12 +126,12 @@ class FavItem(UniqueMixin, Base):
 
 class FavItemCollectioLink(Base):
     __tablename__ = 'favitem_collection_link'
-    fav_item_id = Column(Integer,ForeignKey('fav_item.id'), primary_key=True)
+    fav_item_id = Column(Integer,ForeignKey('fav_item.comic_id_number'), primary_key=True)
     fav_collection_id = Column(Integer, ForeignKey('fav_collection.id'), primary_key=True)
 
 class FavItemFolderLink(Base):
     __tablename__ = 'favitem_folder_link'
-    fav_item_id = Column(Integer, ForeignKey('fav_item.id'), primary_key=True)
+    fav_item_id = Column(Integer, ForeignKey('fav_item.comic_id_number'), primary_key=True)
     fav_folder_id = Column(Integer, ForeignKey('fav_folder.id'), primary_key=True)
 
 class FavCollectionFolderLink(Base):
@@ -157,7 +158,7 @@ class DataManager():
         session = self.Session()
         results = session.query(FavCollection).first()
         if results is None:
-            new_collection = FavCollection(name='Unsorted Comics')
+            new_collection = FavCollection(name='Unsorted Comics',sort_by='Pub Date')
             session.add(new_collection)
             session.commit()
 

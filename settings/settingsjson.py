@@ -80,7 +80,7 @@ settings_json_dispaly = json.dumps(
     ])
 
 tap_options = ['Next Page','Prev Page','Next Comic','Prev Comic','Open Page Nav','Open Collection Browser',
-                'Return to Home Screen', 'Disabled']
+                'Return to Home Screen','Go to Favorites Screen', 'Disabled']
 settings_json_screen_tap_control = json.dumps(
     [
      {'type':   'title',

@@ -9,7 +9,7 @@ from kivy.uix.popup import Popup
 
 from gui.widgets.custom_widgets import AppScreenTemplate
 from gui.widgets.custom_widgets import CommonComicsCoverInnerGrid, \
-    CommonComicsCoverLabel,CommonComicsCoverImage
+    CommonComicsCoverLabel,CommonComicsCoverImage, CollctionAddPopUp
 from data.comic_data import ComicCollection, ComicBook
 from tools.url_get import CustomUrlRequest
 from data.favorites import add_collection
@@ -105,22 +105,9 @@ class ComicCollectionScreen(AppScreenTemplate):
                 self.build_collection_from_favoritecollection(query)
 
     def add_collection(self):
-        self.collection_pop = CollctionAddPopUp(collection=self.collection)
+        self.collection_pop = CollctionAddPopUp(collection=self.collection, use_collection='True')
         self.collection_pop.hint_text = 'Enter a name you want this Collection to have'
         self.collection_pop.open()
 
     def submit_fav(self):
         print self.collection_pop.content.ids._textfield_name.text
-
-class CollctionAddPopUp(Popup):
-    collection = ObjectProperty()
-    def __init__(self, **kwargs):
-        super(CollctionAddPopUp, self).__init__(**kwargs)
-
-    def submit_fav(self):
-        if self.textfield_name.text:
-            self.collection.name = self.textfield_name.text
-            add_collection(self.collection)
-            self.dismiss()
-        else:
-            self.err_lbl.text = 'You Must Enter a Name'

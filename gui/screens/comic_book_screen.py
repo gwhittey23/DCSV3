@@ -31,6 +31,7 @@ class ComicBookScreen(Screen):
     scroller = ObjectProperty()
     top_pop = ObjectProperty()
     section = StringProperty()
+    sort_by = StringProperty()
     def __init__(self, **kwargs):
 
         super(ComicBookScreen, self).__init__(**kwargs)
@@ -41,11 +42,11 @@ class ComicBookScreen(Screen):
         app = App.get_running_app()
         app.manager.last_screen = self
 
-    def load_comic_book(self,comic_obj,comics_collection = ''):
+    def load_comic_book(self,comic_obj,comics_collection,sort_by = ''):
         print 'load_comic_book'
         if self.just_loaded:
             return
-
+        self.sort_by = sort_by
         self.just_loaded = True
         self.app.comic_loaded = 'yes'
         Clock.schedule_once(self.set_just_loaded, 4)
@@ -70,13 +71,19 @@ class ComicBookScreen(Screen):
         gc.collect()
         number_pages = int(comic_obj.page_count)
         max_pages_limit = int(App.get_running_app().config.get('Server', 'max_pages_limit'))
-
+        if number_pages<=max_pages_limit:
+            x_title = 'Pages 1 to %s of %s '%(number_pages,number_pages)
+        else:
+            if self.last_load == 0:
+                x_title = 'Pages 1 to %s of %s '%(max_pages_limit,number_pages)
+            else:
+                x_title = 'Pages %s to %s of %s '%(max_pages_limit,(self.last_load + max_pages_limit),number_pages)
 
 
 
 
         scroll = ScrollView( size_hint=(1,1), do_scroll_x=True, do_scroll_y=False,id='page_thumb_scroll')
-        self.page_nav_popup = Popup(id='page_nav_popup',title='Pages', content=scroll, pos_hint ={'y': .0001},size_hint = (1,.3))
+        self.page_nav_popup = Popup(id='page_nav_popup',title=x_title, content=scroll, pos_hint ={'y': .0001},size_hint = (1,.3))
 
         self.scroller = scroll
         outer_grid = GridLayout(rows=1, size_hint=(None,None),spacing=5,padding_horizontal=5,id='outtergrd')
@@ -115,9 +122,10 @@ class ComicBookScreen(Screen):
 
 
         scroll.add_widget(outer_grid)
+        if self.use_pagination == True:
+            if len(self.comics_collection.comics)>1:
+                self.build_top_nav()
 
-        if len(self.comics_collection.comics)>1:
-            self.build_top_nav()
             self.next_comic = self.get_next_comic()
             self.prev_comic = self.get_prev_comic()
             self.build_next_comic_dialog()
@@ -132,6 +140,7 @@ class ComicBookScreen(Screen):
         "grouper(3, 'ABCDEFG', 'x') --> ABC DEF Gxx"
         args = [iter(iterable)] * n
         return itertools.izip_longest(fillvalue=fillvalue, *args)
+
     def add_pages(self,comic_book_carousel,outer_grid,comic_obj,i):
         strech_image = App.get_running_app().config.get('Display', 'stretch_image')
         base_url = App.get_running_app().config.get('Server', 'url')
@@ -162,38 +171,42 @@ class ComicBookScreen(Screen):
         proxyImage.bind(on_load=partial(comic_page_image._new_image_downloaded, comic_page_scatter,outer_grid,comic_obj.comic_id_number,i))
 
     def get_prev_comic(self):#TODO Fix when 1 comic is loaded there should not be a next and prev comic.
-        comics_collection = self.comics_collection.comics
+        comics_collection = self.comics_collection
+        sort_by = self.sort_by
+        comic_collection_sorted = comics_collection.do_sort(sort_by)
         comic_obj = self.comic_obj
-        index = comics_collection.index(comic_obj) # first index where x appears
-        if index < len(comics_collection):
+        index = comic_collection_sorted.index(comic_obj) # first index where x appears
+        if index < len(comic_collection_sorted):
             if index == 0:
                 if self.section == 'Section' or self.section == 'Last':
                     prev_comic = self.comic_obj
 
 
                 else:
-                    prev_comic = comics_collection[index]
+                    prev_comic = comic_collection_sorted[index]
             else:
                 if self.section == 'Section' or self.section == 'Last':
                     prev_comic = self.comic_obj
                 else:
-                    prev_comic = comics_collection[index-1]
+                    prev_comic = comic_collection_sorted[index-1]
         return prev_comic
 
     def get_next_comic(self):
-        comics_collection = self.comics_collection.comics
+        comics_collection = self.comics_collection
+        sort_by = self.sort_by
+        comic_collection_sorted = comics_collection.do_sort(sort_by)
         comic_obj = self.comic_obj
-        index = comics_collection.index(comic_obj) # first index where x appears
-        if index >= len(comics_collection)-1:
+        index = comic_collection_sorted.index(comic_obj) # first index where x appears
+        if index >= len(comic_collection_sorted)-1:
             if self.use_pagination:
                 next_comic = self.comic_obj
             else:
-                next_comic = comics_collection[index]
+                next_comic = comic_collection_sorted[index]
         else:
             if self.use_pagination:
                 next_comic = self.comic_obj
             else:
-                next_comic = comics_collection[index+1]
+                next_comic = comic_collection_sorted[index+1]
 
         return next_comic
 
@@ -236,17 +249,16 @@ class ComicBookScreen(Screen):
     def comicscreen_open_collection_popup(self):
         self.top_pop.open()
 
-    def build_top_nav(self,collection_sort=''):
+    def build_top_nav(self):
 
         scroll = CommonComicsScroll(id='page_thumb_scroll')
         self.top_pop = Popup(id='page_pop',title='Pages', content=scroll, pos_hint ={'y': .724},size_hint = (1,.379))
         grid = CommonComicsOuterGrid(id='outtergrd')
         grid.bind(minimum_width=grid.setter('width'))
-        if collection_sort == 'issue':
-            comic_collection_sort = self.comics_collection.do_sort_issue
-        else:
-            comic_collection_sort = self.comics_collection.comics
-        for comic in comic_collection_sort:
+        sort_by = self.sort_by
+        comics_collection = self.comics_collection
+        comic_collection_sorted = comics_collection.do_sort(sort_by)
+        for comic in comic_collection_sorted:
             comic_name = '%s #%s'%(str(comic.series),str(comic.issue))
             src_thumb = comic.get_cover()
             inner_grid = CommonComicsCoverInnerGrid(id='inner_grid'+str(comic.comic_id_number))
@@ -272,7 +284,7 @@ class ComicBookScreen(Screen):
         comic_name = '%s #%s'%(str(prev_comic.series),str(prev_comic.issue))
         src_thumb = self.prev_comic.get_cover()
         inner_grid = CommonComicsCoverInnerGrid(id='inner_grid'+str(prev_comic.comic_id_number))
-        comic_thumb = CommonComicsCoverImage(source=src_thumb,id=str(prev_comic.comic_id_number),nocache=True)
+        comic_thumb = CommonComicsCoverImage(source=src_thumb,id=str(prev_comic.comic_id_number),nocache=True, use_bubble_menu=False)
 
         comic_thumb.comic = self.prev_comic
         comic_thumb.comics_collection = self.comics_collection
@@ -291,10 +303,13 @@ class ComicBookScreen(Screen):
         self.prev_dialog.add_action_button("Dismiss", action=lambda *x: self.prev_dialog.dismiss())
 
         comic_thumb.bind(on_release=self.prev_dialog.dismiss)
-        comics_collection = self.comics_collection.comics
+        comics_collection = self.comics_collection
+        sort_by = self.sort_by
+        comic_collection_sorted = comics_collection.do_sort(sort_by)
+
         comic_obj = self.comic_obj
-        index = comics_collection.index(comic_obj) # first index where x appears
-        if index < len(comics_collection):
+        index = comic_collection_sorted.index(comic_obj) # first index where x appears
+        if index < len(comic_collection_sorted):
             if index == 0:
                 if self.use_pagination and self.section != 'First':
                     comic_thumb.bind(on_release=comic_thumb.open_prev_section)
@@ -312,13 +327,15 @@ class ComicBookScreen(Screen):
         comic = self.next_comic
         Logger.debug('self.next_comic.comic_id_number: %s'%self.next_comic.comic_id_number)
         Logger.debug('comic_id_number: %s'%comic.comic_id_number)
-        comics_collection = self.comics_collection.comics
+        comics_collection = self.comics_collection
+        sort_by = self.sort_by
+        comic_collection_sorted = comics_collection.do_sort(sort_by)
         comic_obj = self.comic_obj
-        index = comics_collection.index(comic_obj) # first index where x appears
+        index = comic_collection_sorted.index(comic_obj) # first index where x appears
         comic_name = '%s #%s'%(str(comic.series),str(comic.issue))
         src_thumb = self.next_comic.get_cover()
         inner_grid = CommonComicsCoverInnerGrid(id='inner_grid'+str(comic.comic_id_number))
-        comic_thumb = CommonComicsCoverImage(source=src_thumb,id=str(comic.comic_id_number),nocache=True)
+        comic_thumb = CommonComicsCoverImage(source=src_thumb,id=str(comic.comic_id_number),nocache=True, use_bubble_menu=False)
 
         comic_thumb.comic = self.next_comic
         comic_thumb.comics_collection = self.comics_collection
@@ -327,7 +344,7 @@ class ComicBookScreen(Screen):
         smbutton = CommonComicsCoverLabel(text=comic_name)
         inner_grid.add_widget(smbutton)
         content = inner_grid
-        if index >= len(comics_collection)-1:
+        if index >= len(comic_collection_sorted)-1:
             if self.use_pagination:
                 dialog_title = 'Load Next Section'
             else:
@@ -345,7 +362,7 @@ class ComicBookScreen(Screen):
                              auto_dismiss=True)
         comic_thumb.bind(on_release=self.next_dialog.dismiss)
 
-        if index >= len(comics_collection)-1:
+        if index >= len(comic_collection_sorted)-1:
             if self.use_pagination:
                 comic_thumb.bind(on_release=comic_thumb.open_next_section)
             else:
@@ -570,6 +587,8 @@ class ControlButton(Button):
             comic_book_screen.load_next_comic()
         elif tap_option == 'Return to Home Screen':
             app.manager.current = 'home_screen'
+        elif tap_option == 'Go to Favorites Screen':
+            app.manager.current = 'favorites_screen'
         else:
             return
 

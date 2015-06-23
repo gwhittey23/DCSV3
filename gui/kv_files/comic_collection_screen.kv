@@ -72,25 +72,42 @@
     textfield_name:    _textfield_name
     err_lbl:           _error_label
     hint_text: ''
+    collection_sort:   _collection_sort
     size_hint:(.8,.3)
     pos_hint:{'center_x':.5,'center_y':.5}
     title: 'Enter in info for this collection'
-    GridLayout:
-        rows: 3
-        cols:1
+    RelativeLayout:
         size_hint:(1,1)
         SingleLineTextField:
             id:					_textfield_name
             hint_text:			root.hint_text
             size_hint:			0.8, None
             height:				dp(48)
-            pos_hint:			{'center_x': .5, 'center_y': .5}
+            pos_hint:			{'x': .01, 'top': .95}
             theme_style:		'Light'
             foreground_color:  (1,1,1,1)
+        MaterialLabel:
+            text:				'Sort By'
+            id:                 _collection_sort_label
+            font_style:			'Body1'
+            size_hint:			None, None
+            width:				dp(100)
+            height:				dp(40)
+            text_size:			self.size
+            pos_hint:			{'x': .01, 'top': .75}
+            halign:				'center'
+            valign:				'middle'
+        Spinner:
+            text:               'Issue'
+            id:                 _collection_sort
+            values:             'Issue', 'Pub Date'
+            size_hint:			None, None
+            size:				dp(130), dp(36)
+            pos_hint:			{'x': .4, 'top': .75}
         RaisedButton:
             size_hint:			None, None
             size:				dp(130), dp(36)
-            pos_hint:			{'x': 0.3, 'top': .94}
+            pos_hint:			{'x': 0.7, 'top': .2}
             elevation_normal:	2
             theme_style:		'Dark'
             disabled:			False
@@ -106,9 +123,6 @@
             text_size:			self.size
             halign:				'center'
             valign:				'middle'
-
-
-
 
 
 

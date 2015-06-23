@@ -7,10 +7,9 @@ from kivy.logger import Logger
 from gui.widgets.custom_widgets import AppScreenTemplate,AppNavDrawer
 from data.comic_data import ComicCollection, ComicBook
 from tools.url_get import CustomUrlRequest
-
 from gui.widgets.custom_widgets import CommonComicsCoverInnerGrid,\
     CommonComicsOuterGrid,CommonComicsCoverLabel,CommonComicsCoverImage
-from kivy.uix.popup import Popup
+
 
 class HomeScreen(AppScreenTemplate):
     tile_icon_data = ListProperty()
@@ -80,9 +79,7 @@ class HomeScreen(AppScreenTemplate):
                                on_redirect=self.got_error,
                                timeout = 15,debug=True
                                )
-    def do_pop(self):
-        self.collection_pop = CollctionAddPopUp()
-        self.collection_pop.open()
+
 
     def call_test(self):
         print self.collection
