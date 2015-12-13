@@ -5,7 +5,7 @@ from kivy.uix.widget import Widget
 from kivy.uix.button import ButtonBehavior
 from kivy.uix.image import AsyncImage, Image
 from kivy.logger import Logger
-from comicsdb_models import *
+
 from operator import attrgetter
 import os.path
 from kivy.loader import Loader

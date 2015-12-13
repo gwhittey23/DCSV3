@@ -1,13 +1,13 @@
-from data.database import DataManager,FavItem,FavCollection,FavFolder, get_or_create,FavItemCollectioLink
+from data.database import DataManager,FavItem,FavCollection,FavFolder, get_or_create,FavItemCollectioLink, Base
 
-def add_comic_fav(comic,):
+def add_comic_fav(comic, collection_name):
     dm = DataManager()
     dm.create()
     if comic.comic_id_number is not None:
         comic = comic
         session = dm.Session()
         comic_name = '%s #%s'%(comic.series,str(comic.issue))
-        new_collection = FavCollection.as_unique(session, name='Unsorted Comics')
+        new_collection = session.query(FavCollection).filter_by(name=collection_name).one()
 
         new_favitem = FavItem.as_unique(session,comic_id_number=comic.comic_id_number)
         new_favitem.name = comic_name
@@ -71,7 +71,7 @@ def delete_collection(collection_id):
     dm = DataManager()
     dm.create()
     session = dm.Session()
-    query = session.query(FavCollection).filter_by(id=collection_id).first()
+    query = session.query(FavCollection).get(collection_id)
     session.delete(query)
     session.commit()
 
@@ -115,3 +115,17 @@ def move_fav_item(fav_item,fav_collection_name,target_name):
     x_item.fav_collection.remove(fav_collection)
     session.commit()
     return current_collection_id
+
+def delete_fav_item(fav_item_id, fav_collection_id):
+    dm = DataManager()
+    dm.create()
+    session = dm.Session()
+    fav_collection = session.query(FavCollection).get(fav_collection_id)
+    x_item = session.query(FavItem).get(fav_item_id)
+    x_item.fav_collection.remove(fav_collection)
+    session.commit()
+
+def delete_tables():
+    dm = DataManager()
+    dm.reset_data()
+    dm.create()

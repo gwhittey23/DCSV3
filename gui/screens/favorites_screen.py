@@ -25,8 +25,10 @@ from gui.theme_engine.material_resources import get_icon_char
 from tools.utils import  iterfy
 from data.comic_data import ComicCollection, ComicBook
 from data.database import FavItem, FavCollection, DataManager
-from data.favorites import get_fav_collection, delete_collection, rename_collection, copy_fav_item, move_fav_item
+from data.favorites import get_fav_collection, delete_collection, rename_collection, copy_fav_item, move_fav_item, \
+    delete_fav_item, delete_tables
 
+#FIXME Find why when comic deleted the comics are not refreshed
 
 class FavoritesScreen(AppScreenTemplate):
     fav_folder_list = ListProperty([])
@@ -71,7 +73,7 @@ class FavoritesScreen(AppScreenTemplate):
         dm.create()
         session = dm.Session()
 
-        query = session.query(FavCollection).filter_by(id=collection_id).one()
+        query = session.query(FavCollection).get(collection_id)
 
         current_collection = query
         sort_by = current_collection.sort_by
@@ -105,12 +107,14 @@ class FavoritesScreen(AppScreenTemplate):
             inner_grid = FavroitesInnerGrid(id='inner_grid'+str(comic_number))
             data_folder = self.app.config.get('Server', 'storagedir')
             cover_file = '%s/%s.png'%(data_folder,str(comic.comic_id_number))
+            print cover_file
             try:
                 if os.path.isfile(cover_file):
                    src_thumb =  str(cover_file)
             except:
                 Logger.critical('Something bad happened in loading cover')
-            comic_thumb = FavroitesCoverImage(source=src_thumb,id=str(comic_number),nocache=True)
+                print "Bad"
+            comic_thumb = FavroitesCoverImage(source=src_thumb, id=str(comic_number),nocache=True)
             inner_grid.fav_folder_list = self.fav_folder_list
             inner_grid.add_widget(comic_thumb)
             # comic_thumb.bind(on_release=comic_thumb.click)
@@ -159,6 +163,10 @@ class FavoritesScreen(AppScreenTemplate):
         self.collection_pop = CollctionAddPopUp(use_collection='False')
         self.collection_pop.hint_text = 'Enter a name you want this Collection to have'
         self.collection_pop.open()
+
+    def delete_data(self):
+        self.delete_dataPop = DeleteDataPop()
+        self.delete_dataPop.open()
 
 class FavoritesScreenNavigationDrawer(AppNavDrawer):
     pass
@@ -282,6 +290,7 @@ class FavoritesFolder(Widget):
             # Clock.schedule_interval(self.update, 0.25)
 
 class FavItemBubbleMenu(ThemeBehaviour,Bubble):
+
     def __init__(self, **kwargs):
         super(FavItemBubbleMenu, self).__init__(**kwargs)
         self.background_normal= ''
@@ -296,7 +305,6 @@ class FavItemBubbleMenu(ThemeBehaviour,Bubble):
             print item.name
             fav_collection_list.append(item.name)
         parent = self.parent
-        print fav_collection_list
         parent.copy_move_item_pop = CopyMoveItemPopup(fav_item=parent)
         parent.copy_move_item_pop.copy_spinner.values = fav_collection_list
         parent.copy_move_item_pop.copy_spinner.text = fav_collection_list[0]
@@ -304,15 +312,15 @@ class FavItemBubbleMenu(ThemeBehaviour,Bubble):
         parent.comic_bubble_menu = ''
         parent.remove_widget(self)
 
-    def move_item(self,*args):
-        self.parent.open_collection()
-        self.parent.comic_bubble_menu = ''
-        self.parent.remove_widget(self)
-
     def delete_item(self,*args):
-        self.parent.open_comic()
-        self.parent.comic_bubble_menu = ''
-        self.parent.remove_widget(self)
+        parent = self.parent
+        app = App.get_running_app()
+        favorites_screen = app.manager.get_screen('favorites_screen')
+        fav_collection_id = favorites_screen.fav_collection_id
+        parent.delete_item_pop = DeleteItemPop(fav_collection_id=fav_collection_id,
+                                               fav_item = parent
+                                               )
+        parent.delete_item_pop.open()
 
     def close_me(self,*args):
         self.parent.comic_bubble_menu = ''
@@ -337,6 +345,7 @@ class CopyMoveItemPopup(Popup):
         fav_item = self.fav_item
         copy_fav_item(fav_item, spinner_text)
         self.dismiss()
+
     def move_fav(self):
         target_name = self.copy_spinner.text
         fav_item = self.fav_item
@@ -392,13 +401,13 @@ class FavoritesCollection(ThemeBehaviour,RectangularRippleBehavior,Button):
         app = App.get_running_app()
         favorites_screen = app.root.get_screen('favorites_screen')
         fav_collection_id = favorites_screen.fav_collection_id
-        if str(favorites_screen.fav_collection_id) == str(self.id):
-            Clock.schedule_once(favorites_screen.build_favorites_screen, .25)
-        else:
-            Clock.schedule_once(partial(favorites_screen.build_favorites_screen, fav_collection_id), .25)
+        scroll = favorites_screen.scroll
         x = self.parent
         x.remove_widget(self)
+        scroll.canvas.ask_update()
         delete_collection(collection_id=self.id)
+        if str(favorites_screen.fav_collection_id) == str(self.id):
+            Clock.schedule_once(partial(favorites_screen.build_favorites_screen, 1), .25)
 
     def rename_collection(self,*args):
         self.collection_pop = CollctionRenamePopUp(collection_id=self.id,fav_collection_widget=self,
@@ -473,3 +482,28 @@ class CollctionRenamePopUp(Popup):
             self.dismiss()
         else:
             self.err_lbl.text = 'You Must Enter a Name'
+
+class DeleteItemPop(Popup):
+    fav_item = ObjectProperty()
+    fav_collection_id = NumericProperty()
+    current_collection = ObjectProperty()
+
+    def delete_item(self):
+        delete_fav_item(self.fav_item.id,self.fav_collection_id)
+        app = App.get_running_app()
+        favorites_screen = app.manager.get_screen('favorites_screen')
+        scroll = favorites_screen.scroll
+        scroll.remove_widget(self.fav_item)
+        scroll.canvas.ask_update()
+        self.dismiss()
+
+
+class DeleteDataPop(Popup):
+
+    def delete_tables(self):
+        delete_tables()
+        self.dismiss()
+        app = App.get_running_app()
+        favorites_screen = app.root.get_screen('favorites_screen')
+
+        favorites_screen.build_favorites_screen()

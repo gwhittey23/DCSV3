@@ -19,7 +19,7 @@ from gui.widgets.circle_menu import ModernMenu
 from functools import partial
 from data.database import FavItem,DataManager
 from data.comic_data import ComicCollection
-from data.favorites import add_comic_fav, add_collection
+from data.favorites import add_comic_fav, add_collection, get_fav_collection
 import os.path
 
 class AppNavDrawer(ThemeBehaviour,NavigationDrawer):
@@ -44,6 +44,7 @@ class AppScreenTemplate(Screen):
 
     def build_nav(self):
         self.toolbar.nav_button = ["md-keyboard-backspace",self.load_last_screen]
+        self.toolbar.add_action_button("md-favorite", lambda *x:self.go_favorites())
         self.toolbar.add_action_button("md-home", lambda *x:self.go_home())
         self.toolbar.add_action_button("md-my-library-books",lambda *x: self.go_comic_screen() )
         self.toolbar.add_action_button("md-settings",lambda *x: self.app.open_settings())
@@ -77,9 +78,12 @@ class AppScreenTemplate(Screen):
         last_screen = self.app.manager.last_screen
         if last_screen:self.app.manager.current = last_screen.name
         return
+
     def go_home(self):
         self.app.manager.current = 'home_screen'
 
+    def go_favorites(self):
+        self.app.manager.current = 'favorites_screen'
     def go_comic_screen(self):
         if self.app.comic_loaded == 'yes':
             self.app.manager.current = 'comic_book_screen'
@@ -190,7 +194,16 @@ class CommonComicsCoverImage(RectangularRippleBehavior,ButtonBehavior,AsyncImage
         self.disabled = False
 
     def add_fav(self,*args):
-       add_comic_fav(self.comic)
+        fav_collection = get_fav_collection()
+        fav_collection_list = []
+        for item in fav_collection:
+           print item.name
+           fav_collection_list.append(item.name)
+        self.add_item_pop = AddFavItemPopup(fav_item=self)
+        self.add_item_pop.spinner.values = fav_collection_list
+        self.add_item_pop.spinner.text = fav_collection_list[0]
+        self.add_item_pop.open()
+
 
     def open_comic(self,*args):
         self.disabled = True
@@ -211,6 +224,7 @@ class CommonComicsCoverImage(RectangularRippleBehavior,ButtonBehavior,AsyncImage
         comic_screen.last_load = 0
         comic_screen.load_comic_book(self.comic,self.comics_collection)
         Clock.schedule_once(self.enable_me, .5)
+
     def open_next_section(self, *args):
         self.disabled = True
         app = App.get_running_app()
@@ -238,10 +252,11 @@ class CommonComicsBubbleMenu(ThemeBehaviour,Bubble):
         self.background_color_down = self._theme_cls.primary_dark
 
     def add_fav(self):
-        x = self.parent
-        self.parent.comic_bubble_menu = ''
-        self.parent.remove_widget(self)
-        x.add_fav()
+        parent = self.parent
+        parent.comic_bubble_menu = ''
+        parent.remove_widget(self)
+
+        parent.add_fav()
 
     def open_collection(self,*args):
         self.parent.open_collection()
@@ -317,3 +332,12 @@ class CollctionAddPopUp(Popup):
 
         else:
             self.err_lbl.text = 'You Must Enter a Name'
+
+
+class AddFavItemPopup(Popup):
+    fav_item = ObjectProperty()
+    def add_fav(self):
+        fav_item = self.fav_item
+        collection_name = self.spinner.text
+        add_comic_fav(fav_item.comic,collection_name)
+        self.dismiss()

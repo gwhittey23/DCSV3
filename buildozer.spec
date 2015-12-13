@@ -16,10 +16,10 @@ source.dir = .
 source.include_exts =
 
 # (list) Source files to exclude (let empty to not exclude anything)
-#source.exclude_exts = spec
+source.exclude_exts = data/db/dcsfav_dev.sqlite
 
 # (list) List of directory to exclude (let empty to not exclude anything)
-source.exclude_dirs = tests, bin, jotpad
+source.exclude_dirs = tests, bin, jotpad, img
 
 # (list) List of exclusions using pattern matching
 #source.exclude_patterns = license,images/*/*.jpg
@@ -33,16 +33,16 @@ version.filename = %(source.dir)s/main.py
 
 # (list) Application requirements
 # comma seperated e.g. requirements = sqlite3,kivy,peewee
-requirements = kivy==master,sqlite3,requests,peewee
+requirements = kivy==master,sqlite3,requests,sqlalchemy
 
 # (list) Garden requirements
 garden_requirements NavigationDrawer
 
 # (str) Presplash of the application
-#presplash.filename = %(source.dir)s/data/presplash.png
+presplash.filename = logo.png
 
 # (str) Icon of the application
-#icon.filename = %(source.dir)s/data/icon.png
+icon.filename = logo.png
 
 # (str) Supported orientation (one of landscape, portrait or all)
 orientation = portrait

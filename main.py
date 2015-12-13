@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-__version__ = '1.0000000132'
+__version__ = '1.0000000135'
 
 DEBUG = True
 import kivy
@@ -11,8 +11,8 @@ from settings.settingsjson import settings_json_server,settings_json_dispaly,set
 from kivy.uix.screenmanager import ScreenManager
 #from csvdb.csvdroid_db import build_db
 from gui.theme_engine.dialog import Dialog
-from kivy.core.window import Window
-from kivy.modules import keybinding, webdebugger
+#from kivy.core.window import Window
+#from kivy.modules import keybinding, webdebugger
 
 from gui.theme_engine.theme import ThemeManager
 from gui.screens.comic_book_screen import ComicBookScreen
@@ -31,6 +31,7 @@ from kivy.properties import ListProperty, ObjectProperty,StringProperty
 from gui.theme_engine.theme import ThemeManager
 from kivy.metrics import dp
 from gui.theme_engine.label import MaterialLabel
+
 # import cProfile
 # import pstats
 
@@ -93,8 +94,8 @@ class MainApp(App):
         self.manager.get_screen('entities_screen').build_nav()
         self.manager.get_screen('comic_collection_screen').build_nav()
         self.manager.get_screen('favorites_screen').build_nav()
-        keybinding.start(Window, App)
-        webdebugger.start(Window, App)
+        # keybinding.start(Window, App)
+        # webdebugger.start(Window, App)
         dbl_tap_time = self.config.get('Screen Tap Control','dbl_tap_time')
         Config.set('postproc', 'double_tap_time', dbl_tap_time)
         return self.manager

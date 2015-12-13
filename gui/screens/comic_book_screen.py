@@ -38,6 +38,7 @@ class ComicBookScreen(Screen):
         self.last_load = 0
         self.just_loaded = False
         self.app = App.get_running_app()
+
     def on_leave(self):
         app = App.get_running_app()
         app.manager.last_screen = self
@@ -132,7 +133,12 @@ class ComicBookScreen(Screen):
             self.build_prev_comic_dialog()
             # self.ids['btn_collection'].disabled = False
         else:
-            pass
+            if len(self.comics_collection.comics)>1:
+                self.build_top_nav()
+                self.next_comic = self.get_next_comic()
+                self.prev_comic = self.get_prev_comic()
+                self.build_next_comic_dialog()
+                self.build_prev_comic_dialog()
             # self.ids['btn_collection'].disabled = True
 
 
@@ -388,7 +394,7 @@ class ComicBookScreen(Screen):
         index = comics_collection.index(comic_obj) # first index where x appears
         if index >= len(comics_collection)-1:
             if self.use_pagination:
-                self.load_comic_book(self.comic,self.comics_collection)
+                self.load_comic_book(self.comic, self.comics_collection)
             else:
                 return
         else:
@@ -507,7 +513,6 @@ class ComicBookPageImage(AsyncImage):
 
 class ComicCarousel(Carousel):
     pass
-
 
 
 #<<<<Following are class for popup at bottom page for pressing and going to page x

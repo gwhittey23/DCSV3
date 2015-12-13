@@ -1,6 +1,5 @@
 #:include force gui/kv_files/comic_book_screen.kv
 #:include force gui/kv_files/home_screen.kv
-#:include force gui/kv_files/series_screen.kv
 #:include force gui/kv_files/entities_screen.kv
 #:include force gui/kv_files/comic_book_screen.kv
 #:include force gui/kv_files/comic_collection_screen.kv
@@ -82,6 +81,42 @@
     background_color:self.background_color_disabled if self.disabled else (self.background_color if self.state == 'normal' else self.background_color_down)
     background_down: ''
     background_normal: ''
+
+
+<AddFavItemPopup@Popup>:
+    spinner:    _spinner
+    size_hint:(.8,.3)
+    pos_hint:{'center_x':.5,'center_y':.5}
+    title: 'Select The Collection to Add To'
+    RelativeLayout:
+        size_hint:(1,1)
+        MaterialLabel:
+            text:				'Add To'
+            id:                 _collection_sort_label
+            font_style:			'Body1'
+            size_hint:			None, None
+            width:				dp(100)
+            height:				dp(40)
+            text_size:			self.size
+            pos_hint:			{'x': .01, 'top': .75}
+            halign:				'center'
+            valign:				'middle'
+        Spinner:
+
+            id:                 _spinner
+            values:             'Issue', 'Pub Date'
+            size_hint:			None, None
+            size:				dp(130), dp(36)
+            pos_hint:			{'x': .4, 'top': .75}
+        RaisedButton:
+            size_hint:			None, None
+            size:				dp(130), dp(36)
+            pos_hint:			{'x': 0.7, 'top': .2}
+            elevation_normal:	2
+            theme_style:		'Dark'
+            disabled:			False
+            text:               "Submit"
+            on_release:         root.add_fav()
 
 
 #    background_down: 'atlas://data/images/defaulttheme/bubble_btn'

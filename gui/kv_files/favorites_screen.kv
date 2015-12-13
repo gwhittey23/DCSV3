@@ -46,12 +46,21 @@
             RaisedButton:
                 size_hint:			None, None
                 size:				dp(130), dp(36)
-                pos_hint:			{'x':.5,'y':.905}
+                pos_hint:			{'x':.45,'y':.905}
                 elevation_normal:	2
                 theme_style:		'Dark'
                 disabled:			False
                 text:               "Add Collection"
                 on_release:         root.add_collection()
+            RaisedButton:
+                size_hint:			None, None
+                size:				dp(130), dp(36)
+                pos_hint:			{'x':.7,'y':.905}
+                elevation_normal:	2
+                theme_style:		'Dark'
+                disabled:			False
+                text:               "Delete All Data"
+                on_release:         root.delete_data()
             MaterialLabel:
                 text:				'TEXT For Current Collection'
                 id:                 _current_collection_label
@@ -296,3 +305,59 @@
             disabled:			False
             text:               "Move"
             on_release:         root.move_fav()
+
+<DeleteItemPop@Popup>:
+    delete_item_label:_delete_item_label
+    size_hint:(.3,.3)
+    pos_hint:{'center_x':.5,'center_y':.5}
+    title: 'Delete This Item'
+    RelativeLayout:
+        size_hint:(1,1)
+        MaterialLabel:
+            text:				'Delete This Item'
+            id:                 _delete_item_label
+            font_style:			'Body1'
+            size_hint:			None, None
+            width:				dp(100)
+            height:				dp(40)
+            text_size:			self.size
+            pos_hint:			{'x': .01, 'top': .75}
+            halign:				'center'
+            valign:				'middle'
+        RaisedButton:
+            size_hint:			None, None
+            size:				dp(130), dp(36)
+            pos_hint:			{'x': 0.1, 'top': .2}
+            elevation_normal:	2
+            theme_style:		'Dark'
+            disabled:			False
+            text:               "Delete"
+            on_release:         root.delete_item()
+
+<DeleteDataPop@Popup>:
+
+    size_hint:(.4,.2)
+    pos_hint:{'center_x':.5,'center_y':.5}
+    title: 'Delete This Item'
+    RelativeLayout:
+        size_hint:(1,1)
+        MaterialLabel:
+            text:				'Confirm Delete Data'
+            id:                 _delete_item_label
+            font_style:			'Body1'
+            size_hint:			None, None
+            width:				dp(100)
+            height:				dp(40)
+            text_size:			self.size
+            pos_hint:			{'x': .01, 'top': .75}
+            halign:				'center'
+            valign:				'middle'
+        RaisedButton:
+            size_hint:			None, None
+            size:				dp(130), dp(36)
+            pos_hint:			{'x': 0.1, 'top': .2}
+            elevation_normal:	2
+            theme_style:		'Dark'
+            disabled:			False
+            text:               "Delete Data"
+            on_release:         root.delete_tables()

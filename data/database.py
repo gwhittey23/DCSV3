@@ -142,14 +142,24 @@ class FavCollectionFolderLink(Base):
 
 class DataManager():
     def __init__(self):
-        self.dbfile =  "data/dcsfav.sqlite"
+        self.dbfile =  "data/db/dcsfav.sqlite"
+
     def delete(self):
         if os.path.exists( self.dbfile ):
             os.unlink( self.dbfile )
 
+    def reset_data(self):
+        self.engine = create_engine('sqlite:///'+ self.dbfile, echo=True)
+
+        session_factory = sessionmaker(bind=self.engine)
+        self.Session = scoped_session(session_factory)
+
+        Base.metadata.drop_all(self.engine)
+
+
     def create(self):
 
-        self.engine = create_engine('sqlite:///'+ self.dbfile, echo=False)
+        self.engine = create_engine('sqlite:///'+ self.dbfile, echo=True)
 
         session_factory = sessionmaker(bind=self.engine)
         self.Session = scoped_session(session_factory)

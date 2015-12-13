@@ -7,6 +7,7 @@ from kivy.logger import Logger
 from gui.widgets.custom_widgets import AppScreenTemplate,AppNavDrawer
 from data.comic_data import ComicCollection, ComicBook
 from tools.url_get import CustomUrlRequest
+from kivy.network.urlrequest import UrlRequest
 from gui.widgets.custom_widgets import CommonComicsCoverInnerGrid,\
     CommonComicsOuterGrid,CommonComicsCoverLabel,CommonComicsCoverImage
 
@@ -36,6 +37,7 @@ class HomeScreen(AppScreenTemplate):
 
         data = results
         new_collection = ComicCollection()
+        print data
         for item in data['comics']:
             new_comic = ComicBook(item)
             new_collection.add_comic(new_comic)
@@ -72,6 +74,7 @@ class HomeScreen(AppScreenTemplate):
         base_url = App.get_running_app().config.get('Server', 'url')
         api_key = App.get_running_app().config.get('Server', 'api_key')
         recent_url  = "%s/comiclist?api_key=%s&order=-added&per_page=10" % (base_url,api_key)
+        print recent_url
         req = CustomUrlRequest(recent_url,
                                self.build_collection,
                                on_error=self.got_error,
